@@ -27,8 +27,6 @@ S12_ASV_table <- otu_table(S12_ASV_table, taxa_are_rows = TRUE)
 S12_taxonomy <- tax_table(S12_taxonomy)
 # Merging into 1 global object
 (S12_physeq_data <-  merge_phyloseq(S12_ASV_table, metadata, S12_taxonomy)) 
-# Filtering out small size fractions
-(S12_physeq_data <- subset_samples(S12_physeq_data, Size.Fraction=="L"))
 
 # Cleanup if you want
 rm(S12_ASV_table, S12_taxonomy)
@@ -51,8 +49,6 @@ S16_ASV_table <- otu_table(S16_ASV_table, taxa_are_rows = TRUE)
 S16_taxonomy <- tax_table(S16_taxonomy)
 # Merging into 1 global object
 (S16_physeq_data <-  merge_phyloseq(S16_ASV_table, metadata, S16_taxonomy))
-# Filtering out small size fractions
-(S16_physeq_data <- subset_samples(S16_physeq_data, Size.Fraction=="L"))
 
 # Cleanup if you want
 rm(S16_ASV_table, S16_taxonomy)
@@ -74,9 +70,7 @@ S18_taxonomy <- read_tsv("./data/18S_taxonomy.tsv") %>%
 S18_ASV_table <- otu_table(S18_ASV_table, taxa_are_rows = TRUE)         
 S18_taxonomy <- tax_table(S18_taxonomy)
 # Merging into 1 global object
-(S18_physeq_data <-  merge_phyloseq(S18_ASV_table, metadata, S18_taxonomy)) 
-# Filtering out small size fractions
-(S18_physeq_data <- subset_samples(S18_physeq_data, Size.Fraction=="L"))
+(S18_physeq_data <-  merge_phyloseq(S18_ASV_table, metadata, S18_taxonomy))
 
 # Cleanup if you want
 rm(S18_ASV_table, S18_taxonomy)
@@ -99,9 +93,82 @@ COI_ASV_table <- otu_table(COI_ASV_table, taxa_are_rows = TRUE)
 COI_taxonomy <- tax_table(COI_taxonomy)
 # Merging into 1 global object
 (COI_physeq_data <-  merge_phyloseq(COI_ASV_table, metadata, COI_taxonomy)) 
-# Filtering out small size fractions
-(COI_physeq_data <- subset_samples(COI_physeq_data, Size.Fraction=="L"))
 
 # Cleanup if you want
 rm(COI_ASV_table, COI_taxonomy)
-##################################
+###############################################################################
+
+
+
+
+
+
+
+###############################################################################
+# Filtering and pre-processing datasets
+#########################################
+
+####
+# Remove small size fractions
+####
+(S12_physeq_data <- subset_samples(S12_physeq_data, Size.Fraction=="L"))
+(S16_physeq_data <- subset_samples(S16_physeq_data, Size.Fraction=="S"))
+(S18_physeq_data <- subset_samples(S18_physeq_data, Size.Fraction=="L"))
+(COI_physeq_data <- subset_samples(COI_physeq_data, Size.Fraction=="L"))
+
+
+####
+# Explore and filter by sample sequencing depth
+####
+# Find 12S outliers
+(sample_sum_df <- data.frame(sum = sample_sums(S12_physeq_data)) %>% 
+  arrange(desc(sum)))
+out <- boxplot.stats(sample_sum_df$sum)$out
+out_ind <- which(sample_sum_df$sum %in% c(out))
+outliers <- row.names(metadata[out_ind])
+
+# Find 16S outliers
+(sample_sum_df <- data.frame(sum = sample_sums(S16_physeq_data)) %>% 
+    arrange(desc(sum)))
+out <- boxplot.stats(sample_sum_df$sum)$out
+out_ind <- which(sample_sum_df$sum %in% c(out))
+outliers <- row.names(metadata[out_ind])
+
+# Find 18S outliers
+(sample_sum_df <- data.frame(sum = sample_sums(S18_physeq_data)) %>% 
+    arrange(desc(sum)))
+out <- boxplot.stats(sample_sum_df$sum)$out
+out_ind <- which(sample_sum_df$sum %in% c(out))
+outliers <- row.names(metadata[out_ind])
+
+# Find COI outliers
+(sample_sum_df <- data.frame(sum = sample_sums(COI_physeq_data)) %>% 
+    arrange(desc(sum)))
+out <- boxplot.stats(sample_sum_df$sum)$out
+out_ind <- which(sample_sum_df$sum %in% c(out))
+outliers <- row.names(metadata[out_ind])
+
+# remove samples with arbitrary read depths threshold
+# 2000 read depth requirement would limit loss but clean up important bad quality
+(S12_physeq_data <- prune_samples(sample_sums(S12_physeq_data) >= 2000 , S12_physeq_data))
+(S16_physeq_data <- prune_samples(sample_sums(S16_physeq_data) >= 2000 , S16_physeq_data))
+(S18_physeq_data <- prune_samples(sample_sums(S18_physeq_data) >= 2000 , S18_physeq_data))
+(COI_physeq_data <- prune_samples(sample_sums(COI_physeq_data) >= 2000 , COI_physeq_data))
+
+
+####
+# ASV abundance filtering
+####
+
+
+
+# Clean up taxonomy
+
+
+####
+# ASV prevalence filtering
+####
+
+
+
+# Clean up taxonomy
