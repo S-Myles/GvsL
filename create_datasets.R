@@ -120,33 +120,23 @@ rm(COI_ASV_table, COI_taxonomy)
 ####
 # Explore and filter by sample sequencing depth
 ####
-# Find 12S outliers
+# Find outliers
 (sample_sum_df <- data.frame(sum = sample_sums(S12_physeq_data)) %>% 
   arrange(desc(sum)))
-out <- boxplot.stats(sample_sum_df$sum)$out
-out_ind <- which(sample_sum_df$sum %in% c(out))
-outliers <- row.names(metadata[out_ind])
 
-# Find 16S outliers
 (sample_sum_df <- data.frame(sum = sample_sums(S16_physeq_data)) %>% 
     arrange(desc(sum)))
-out <- boxplot.stats(sample_sum_df$sum)$out
-out_ind <- which(sample_sum_df$sum %in% c(out))
-outliers <- row.names(metadata[out_ind])
 
-# Find 18S outliers
 (sample_sum_df <- data.frame(sum = sample_sums(S18_physeq_data)) %>% 
     arrange(desc(sum)))
-out <- boxplot.stats(sample_sum_df$sum)$out
-out_ind <- which(sample_sum_df$sum %in% c(out))
-outliers <- row.names(metadata[out_ind])
 
-# Find COI outliers
 (sample_sum_df <- data.frame(sum = sample_sums(COI_physeq_data)) %>% 
     arrange(desc(sum)))
-out <- boxplot.stats(sample_sum_df$sum)$out
-out_ind <- which(sample_sum_df$sum %in% c(out))
-outliers <- row.names(metadata[out_ind])
+
+# Find out more
+#out <- boxplot.stats(sample_sum_df$sum)$out
+#out_ind <- which(sample_sum_df$sum %in% c(out))
+#outliers <- row.names(metadata[out_ind])
 
 # remove samples with arbitrary read depths threshold
 # 2000 read depth requirement would limit loss but clean up important bad quality
@@ -159,16 +149,16 @@ outliers <- row.names(metadata[out_ind])
 ####
 # ASV abundance filtering
 ####
-
-
-
-# Clean up taxonomy
+(S12_physeq_filt <- filter_taxa(S12_physeq_data, function(x) sum(x) > 100, TRUE))
+(S16_physeq_filt <- filter_taxa(S16_physeq_data, function(x) sum(x) > 100, TRUE))
+(S18_physeq_filt <- filter_taxa(S18_physeq_data, function(x) sum(x) > 100, TRUE))
+(COI_physeq_filt <- filter_taxa(COI_physeq_data, function(x) sum(x) > 100, TRUE))
 
 
 ####
 # ASV prevalence filtering
 ####
-
-
-
-# Clean up taxonomy
+(S12_physeq_filt <- filter_taxa(S12_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+(S16_physeq_filt <- filter_taxa(S16_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+(S18_physeq_filt <- filter_taxa(S18_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+(COI_physeq_filt <- filter_taxa(COI_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
