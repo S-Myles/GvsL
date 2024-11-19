@@ -101,9 +101,6 @@ rm(COI_ASV_table, COI_taxonomy)
 
 
 
-
-
-
 ###############################################################################
 # Filtering and pre-processing datasets
 #########################################
@@ -111,16 +108,21 @@ rm(COI_ASV_table, COI_taxonomy)
 ####
 # Remove small size fractions
 ####
-(S12_physeq_data <- subset_samples(S12_physeq_data, Size.Fraction=="L"))
-(S16_physeq_data <- subset_samples(S16_physeq_data, Size.Fraction=="S"))
-(S18_physeq_data <- subset_samples(S18_physeq_data, Size.Fraction=="L"))
-(COI_physeq_data <- subset_samples(COI_physeq_data, Size.Fraction=="L"))
+(S12_physeq_data <- subset_samples(S12_physeq_data, Size.Fraction=="L") %>% 
+   filter_taxa(function(x) sum(x > 1) > 0, TRUE))
+(S16_physeq_data <- subset_samples(S16_physeq_data, Size.Fraction=="S") %>% 
+    filter_taxa(function(x) sum(x > 1) > 0, TRUE))
+(S18_physeq_data <- subset_samples(S18_physeq_data, Size.Fraction=="L") %>% 
+    filter_taxa(function(x) sum(x > 1) > 0, TRUE))
+(COI_physeq_data <- subset_samples(COI_physeq_data, Size.Fraction=="L") %>% 
+    filter_taxa(function(x) sum(x > 1) > 0, TRUE))
+
+
 
 
 ####
 # Explore and filter by sample sequencing depth
 ####
-# Find outliers
 (sample_sum_df <- data.frame(sum = sample_sums(S12_physeq_data)) %>% 
   arrange(desc(sum)))
 
@@ -140,25 +142,78 @@ rm(COI_ASV_table, COI_taxonomy)
 
 # remove samples with arbitrary read depths threshold
 # 2000 read depth requirement would limit loss but clean up important bad quality
-(S12_physeq_data <- prune_samples(sample_sums(S12_physeq_data) >= 2000 , S12_physeq_data))
-(S16_physeq_data <- prune_samples(sample_sums(S16_physeq_data) >= 2000 , S16_physeq_data))
-(S18_physeq_data <- prune_samples(sample_sums(S18_physeq_data) >= 2000 , S18_physeq_data))
-(COI_physeq_data <- prune_samples(sample_sums(COI_physeq_data) >= 2000 , COI_physeq_data))
+(S12_deep_data <- prune_samples(sample_sums(S12_physeq_data) >= 2000 , S12_physeq_data))
+(S16_deep_data <- prune_samples(sample_sums(S16_physeq_data) >= 2000 , S16_physeq_data))
+(S18_deep_data <- prune_samples(sample_sums(S18_physeq_data) >= 2000 , S18_physeq_data))
+(COI_deep_data <- prune_samples(sample_sums(COI_physeq_data) >= 2000 , COI_physeq_data))
 
 
-####
-# ASV abundance filtering
-####
-(S12_physeq_filt <- filter_taxa(S12_physeq_data, function(x) sum(x) > 100, TRUE))
-(S16_physeq_filt <- filter_taxa(S16_physeq_data, function(x) sum(x) > 100, TRUE))
-(S18_physeq_filt <- filter_taxa(S18_physeq_data, function(x) sum(x) > 100, TRUE))
-(COI_physeq_filt <- filter_taxa(COI_physeq_data, function(x) sum(x) > 100, TRUE))
 
 
 ####
 # ASV prevalence filtering
 ####
-(S12_physeq_filt <- filter_taxa(S12_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
-(S16_physeq_filt <- filter_taxa(S16_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
-(S18_physeq_filt <- filter_taxa(S18_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
-(COI_physeq_filt <- filter_taxa(COI_physeq_filt, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+# Define prevalence of each taxa  (in how many samples did each taxa appear at least once)
+prev12S = apply(X = otu_table(S12_deep_data),
+                MARGIN = ifelse(taxa_are_rows(S12_deep_data), yes = 1, no = 2),
+                FUN = function(x){sum(x > 0)})
+(S12_prev_filt <- filter_taxa(S12_deep_data, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+
+# Define prevalence of each taxa  (in how many samples did each taxa appear at least once)
+prev16S = apply(X = otu_table(S16_deep_data),
+                MARGIN = ifelse(taxa_are_rows(S16_deep_data), yes = 1, no = 2),
+                FUN = function(x){sum(x > 0)})
+(S16_prev_filt <- filter_taxa(S16_deep_data, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+
+# Define prevalence of each taxa  (in how many samples did each taxa appear at least once)
+prev18S = apply(X = otu_table(S18_deep_data),
+                MARGIN = ifelse(taxa_are_rows(S18_deep_data), yes = 1, no = 2),
+                FUN = function(x){sum(x > 0)})
+(S18_prev_filt <- filter_taxa(S18_deep_data, function(x) sum(x > 1) > (0.1*length(x)), TRUE))
+
+# Define prevalence of each taxa  (in how many samples did each taxa appear at least once)
+prevCOI = apply(X = otu_table(COI_deep_data),
+                MARGIN = ifelse(taxa_are_rows(COI_deep_data), yes = 1, no = 2),
+                FUN = function(x){sum(x > 0)})
+(COI_prev_filt <- filter_taxa(COI_deep_data, function(x) sum(x > 1) > 1, TRUE))
+
+
+
+
+####
+# ASV total abundance filtering
+####
+(S12_P_A_filt <- filter_taxa(S12_prev_filt, function(x) sum(x) > 100, TRUE))
+(S16_P_A_filt <- filter_taxa(S16_prev_filt, function(x) sum(x) > 100, TRUE))
+(S18_P_A_filt <- filter_taxa(S18_prev_filt, function(x) sum(x) > 100, TRUE))
+(COI_P_A_filt <- filter_taxa(COI_prev_filt, function(x) sum(x) > 100, TRUE))
+
+
+
+
+#######
+# Taxonomic agglomeration
+#######
+# How many genera are present after filtering?
+(S12_filt_glom_c = tax_glom(S12_P_A_filt, taxrank = "Class"))
+(S16_filt_glom_c = tax_glom(S16_P_A_filt, taxrank = "Class"))
+(S18_filt_glom_c = tax_glom(S18_P_A_filt, taxrank = "Class"))
+(COI_filt_glom_c = tax_glom(COI_P_A_filt, taxrank = "Class"))
+
+# How many species are present after filtering?
+(S12_filt_glom_f = tax_glom(S12_P_A_filt, taxrank = "Family"))
+(S16_filt_glom_f = tax_glom(S16_P_A_filt, taxrank = "Family"))
+(S18_filt_glom_f = tax_glom(S18_P_A_filt, taxrank = "Family"))
+(COI_filt_glom_f = tax_glom(COI_P_A_filt, taxrank = "Family"))
+
+# How many species are present after filtering?
+(S12_filt_glom_g = tax_glom(S12_P_A_filt, taxrank = "Genus"))
+(S16_filt_glom_g = tax_glom(S16_P_A_filt, taxrank = "Genus"))
+(S18_filt_glom_g = tax_glom(S18_P_A_filt, taxrank = "Genus"))
+(COI_filt_glom_g = tax_glom(COI_P_A_filt, taxrank = "Genus"))
+
+# How many species are present after filtering?
+(S12_filt_glom_s = tax_glom(S12_P_A_filt, taxrank = "Species"))
+(S16_filt_glom_s = tax_glom(S16_P_A_filt, taxrank = "Species"))
+(S18_filt_glom_s = tax_glom(S18_P_A_filt, taxrank = "Species"))
+(COI_filt_glom_s = tax_glom(COI_P_A_filt, taxrank = "Species"))
