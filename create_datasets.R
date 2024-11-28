@@ -183,10 +183,10 @@ prevCOI = apply(X = otu_table(COI_deep_data),
 ####
 # ASV total abundance filtering
 ####
-(S12_P_A_filt <- filter_taxa(S12_prev_filt, function(x) sum(x) > 100, TRUE))
-(S16_P_A_filt <- filter_taxa(S16_prev_filt, function(x) sum(x) > 100, TRUE))
-(S18_P_A_filt <- filter_taxa(S18_prev_filt, function(x) sum(x) > 100, TRUE))
-(COI_P_A_filt <- filter_taxa(COI_prev_filt, function(x) sum(x) > 100, TRUE))
+(S12_P_A_filt <- filter_taxa(S12_prev_filt, function(x) sum(x) > 20, TRUE))
+(S16_P_A_filt <- filter_taxa(S16_prev_filt, function(x) sum(x) > 20, TRUE))
+(S18_P_A_filt <- filter_taxa(S18_prev_filt, function(x) sum(x) > 20, TRUE))
+(COI_P_A_filt <- filter_taxa(COI_prev_filt, function(x) sum(x) > 20, TRUE))
 
 
 
@@ -217,3 +217,36 @@ prevCOI = apply(X = otu_table(COI_deep_data),
 (S16_filt_glom_s = tax_glom(S16_P_A_filt, taxrank = "Species"))
 (S18_filt_glom_s = tax_glom(S18_P_A_filt, taxrank = "Species"))
 (COI_filt_glom_s = tax_glom(COI_P_A_filt, taxrank = "Species"))
+
+
+
+table(sample_data(S12_physeq_pruned)$Size.Fraction)
+table(sample_data(S12_physeq_pruned)$Station)
+table(sample_data(S12_physeq_pruned)$Year)
+table(sample_data(S12_physeq_pruned)$Season)
+table(sample_data(S12_physeq_pruned)$Depth)
+
+table(sample_data(S12_physeq_pruned)$Size.Fraction)
+table(sample_data(S12_physeq_pruned)$Station)
+table(sample_data(S12_physeq_pruned)$Year)
+table(sample_data(S12_physeq_pruned)$Season)
+table(sample_data(S12_physeq_pruned)$Depth)
+
+
+# Step 1: Extract sample IDs
+sample_ids12S <- as.character(sample_names(S12_physeq_data))
+sample_ids16S <- as.character(sample_names(S16_physeq_data))
+sample_ids18S <- as.character(sample_names(S18_physeq_data))
+sample_idsCOI <- as.character(sample_names(COI_physeq_data))
+
+# Step 2: Find common sample IDs
+common_samples <- Reduce(intersect, list(sample_ids12S, sample_ids16S, sample_ids18S, sample_idsCOI))
+
+# Step 3: Prune samples in each phyloseq object
+S12_physeq_pruned <- prune_samples(common_samples, S12_deep_data)
+S16_physeq2_pruned <- prune_samples(common_samples, S16_deep_data)
+S18_physeq1_pruned <- prune_samples(common_samples, S18_deep_data)
+COI_physeq2_pruned <- prune_samples(common_samples, COI_deep_data)
+
+# Step 4: Merge the pruned phyloseq objectsCOI_physeq2_pruned
+merged_physeq <- merge_phyloseq(S12_physeq_pruned, S16_physeq2_pruned, S18_physeq1_pruned,COI_physeq2_pruned)

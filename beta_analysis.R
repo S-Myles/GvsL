@@ -4,7 +4,7 @@ library(tidyverse)    # Data handling and all
 library(microbiome)   # Contains CLR data transformation
 library(ggthemes)
 # Global plot theme setting
-theme_set(theme_minimal())
+theme_set(theme_bw())
 
 # Applying centered log ratio transformation to the ASV data set
 S12_CLR <- microbiome::transform(S12_P_A_filt, "clr")
@@ -98,3 +98,4 @@ ggsave(
   filename = "outputs/Fig2/COI_NMDS.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
+

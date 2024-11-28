@@ -20,21 +20,21 @@ COI_filt_glom_g
 #(merged_data <- merge_phyloseq(S12_physeq_data, S18_physeq_data, COI_physeq_data))
 
 # Random sampling sp accumulation analysis from Vegan
-S12_accum_curve <- otu_table(S12_physeq_data) %>% 
+S12_accum_curve <- otu_table(S12_P_A_filt) %>% 
   t() %>% 
   specaccum(method = "random")
-S16_accum_curve <- otu_table(S16_physeq_data) %>% 
+S16_accum_curve <- otu_table(S16_P_A_filt) %>% 
   t() %>% 
   specaccum(method = "random")
-S18_accum_curve <- otu_table(S18_physeq_data) %>% 
+S18_accum_curve <- otu_table(S18_P_A_filt) %>% 
   t() %>% 
   specaccum(method = "random")
-COI_accum_curve <- otu_table(COI_physeq_data) %>% 
+COI_accum_curve <- otu_table(COI_P_A_filt) %>% 
   t() %>% 
   specaccum(method = "random")
-merged_accum_curve <- otu_table(merged_data) %>% 
-  t() %>% 
-  specaccum(method = "random")
+#merged_accum_curve <- otu_table(merged_data) %>% 
+#  t() %>% 
+#  specaccum(method = "random")
 
 # Combine results into 1 dataframe
 accum_data <- rbind(
@@ -51,7 +51,7 @@ accum_data <- rbind(
   scale_color_viridis_d(option = "plasma", end = 0.9) +  # Colorblind-friendly palette
   scale_fill_viridis_d(option = "plasma", end = 0.9) +   # Same palette for fills
   labs(
-    title = "ASV Accumulation Curves (Unfiltered)",
+    title = "ASV Accumulation Curves (Filtered)",
     x = "Number of Samples",
     y = "Number of ASVs Detected",
     color = "Group",
@@ -59,7 +59,7 @@ accum_data <- rbind(
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5), # Bold and center
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5), # Bold and center
     axis.title.x = element_text(size = 14, face = "bold"),
     axis.title.y = element_text(size = 14, face = "bold"),
     axis.text.x = element_text(size = 14, face = "plain"),
@@ -71,8 +71,8 @@ accum_data <- rbind(
 
 # Save
 ggsave(
-  filename = "outputs/Fig1/sp-accum_unfiltered_data.png",
-  plot = plot, width = 6, height = 6, dpi = 300
+  filename = "outputs/Fig1/sp-accum_filt_data.png",
+  plot = plot, width = 5, height = 4, dpi = 300
 )
 
 

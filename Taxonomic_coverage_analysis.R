@@ -7,7 +7,7 @@ library(phyloseq)
 # 12S
 ######
 # Import data
-S12_tax <- tax_table(S12_physeq_data) %>% 
+S12_tax <- tax_table(S12_P_A_filt) %>% 
   as.data.frame()
 
 # Calculate assigned vs unassigned proportions
@@ -57,7 +57,7 @@ S12_proportion_table_long <- S12_proportion_table %>%
 
 #Save
 ggsave(
-  filename = "outputs/Fig1/S12-raw_tax_coverage.png",
+  filename = "outputs/Fig1/S12-filt_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ##########################################################################################################
@@ -66,7 +66,7 @@ ggsave(
 ##########
 #16S
 ##########
-S16_tax <- tax_table(S16_physeq_data) %>% 
+S16_tax <- tax_table(S16_P_A_filt) %>% 
   as.data.frame()
 
 S16_proportion_table <- S16_tax %>% 
@@ -113,7 +113,7 @@ S16_proportion_table_long <- S16_proportion_table %>%
     ))
 
 ggsave(
-  filename = "outputs/Fig1/S16-raw_tax_coverage.png",
+  filename = "outputs/Fig1/S16-filt_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ####################################################################################################
@@ -124,7 +124,7 @@ ggsave(
 ##########
 #18S
 ##########
-S18_tax <- tax_table(S18_physeq_data) %>% 
+S18_tax <- tax_table(S18_P_A_filt) %>% 
   as.data.frame()
 
 S18_proportion_table <- S18_tax %>% 
@@ -171,7 +171,7 @@ S18_proportion_table_long <- S18_proportion_table %>%
     ))
 
 ggsave(
-  filename = "outputs/Fig1/S18-raw_tax_coverage.png",
+  filename = "outputs/Fig1/S18-filt_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ####################################################################################################
@@ -183,7 +183,7 @@ ggsave(
 ##########
 #18S
 ##########
-COI_tax <- tax_table(COI_physeq_data) %>% 
+COI_tax <- tax_table(COI_P_A_filt) %>% 
   as.data.frame()
 
 COI_proportion_table <- COI_tax %>% 
@@ -230,7 +230,7 @@ COI_proportion_table_long <- COI_proportion_table %>%
     ))
 
 ggsave(
-  filename = "outputs/Fig1/COI-raw_tax_coverage.png",
+  filename = "outputs/Fig1/COI-filt_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ####################################################################################################
