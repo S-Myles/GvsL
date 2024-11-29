@@ -1,4 +1,4 @@
-library(microbiome)
+library(microbiome)   # Contains alpha diversity metrics calculation function
 
 #########
 # 12S
