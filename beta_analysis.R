@@ -46,7 +46,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S12-all_PCA_variance_explained.png",
+  filename = "outputs/Fig2/S12_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -78,7 +78,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S12-all_PCA.png",
+  filename = "outputs/Fig2/S12_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -134,7 +134,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       aes(x = RDA1, y = RDA2, label = labels),
       hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
-    scale_shape_manual(values = c(16, 2)) +
+    scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
@@ -145,7 +145,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/S12-all_RDA.png",
+  filename = "outputs/Fig2/S12_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -204,7 +204,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S16-all_PCA_variance_explained.png",
+  filename = "outputs/Fig2/S16_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -236,7 +236,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S16-all_PCA.png",
+  filename = "outputs/Fig2/S16_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -289,7 +289,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       aes(x = RDA1, y = RDA2, label = labels),
       hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
-    scale_shape_manual(values = c(16, 2)) +
+    scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
@@ -300,7 +300,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/S16-all_RDA.png",
+  filename = "outputs/Fig2/S16_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -347,7 +347,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S18-all_PCA_variance_explained.png",
+  filename = "outputs/Fig2/S18_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -379,7 +379,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S18-all_PCA.png",
+  filename = "outputs/Fig2/S18_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -432,7 +432,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       aes(x = RDA1, y = RDA2, label = labels),
       hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
-    scale_shape_manual(values = c(16, 2)) +
+    scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
@@ -443,7 +443,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/S18-all_RDA.png",
+  filename = "outputs/Fig2/S18_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 ###############################################################################
@@ -488,7 +488,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/COI-all_PCA_variance_explained.png",
+  filename = "outputs/Fig2/COI_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -520,7 +520,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/COI-all_PCA.png",
+  filename = "outputs/Fig2/COI_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -574,7 +574,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       aes(x = RDA1, y = RDA2, label = labels),
       hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
-    scale_shape_manual(values = c(16, 2)) +
+    scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
@@ -585,6 +585,6 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/COI-all_RDA.png",
+  filename = "outputs/Fig2/COI_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
