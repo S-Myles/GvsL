@@ -8,8 +8,10 @@ library(tidyverse)    # Data handling and all
 
 # Project metadata
 metadata <-  read_tsv("./data/metadata.txt") %>%
-  column_to_rownames(var = "sampleid")
+  column_to_rownames(var = "sampleid") %>% 
+  mutate(Date = paste(Year, Season, sep = "_"))
 metadata <- sample_data(metadata) 
+
 
 ####
 # 12S MiFish-U2

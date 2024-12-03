@@ -121,7 +121,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 3, alpha = 0.8) +  
+    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -132,7 +132,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
     geom_text(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      hjust = 1.2, vjust = 1.2, color = "black"
+      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
@@ -147,6 +147,44 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 ggsave(
   filename = "outputs/Fig2/S12_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
+)
+
+
+# Extract RDA eigenvalues
+rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
+pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
+# Combine
+eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
+# Calculate variance proportions
+variance_proportion <- eigenvalues / sum(eigenvalues) * 100
+
+# Create axis labels
+axis_labels <- c(
+  paste0("RDA", seq_along(rda_eigenvalues)), 
+  paste0("PCA", seq_along(pca_eigenvalues))
+)
+
+# Create a data frame for plotting
+variance_df <- data.frame(
+  Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
+  Variance = variance_proportion
+)
+
+
+(variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
+  geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
+  labs(x = "Axes", y = "Variance Explained (%)") +
+  theme_minimal() +
+  theme(axis.title.x = element_text(size = 16, face = "bold"),
+    axis.title.y = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 16, face = "bold", angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 16, face = "bold")
+  ))
+
+# Save the plot
+ggsave(
+  filename = "outputs/Fig2/S12_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
 ###############################################################################
@@ -276,7 +314,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 3, alpha = 0.8) +  
+    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -287,7 +325,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
     geom_text(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      hjust = 1.2, vjust = 1.2, color = "black"
+      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
@@ -304,6 +342,43 @@ ggsave(
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
+
+# Extract RDA eigenvalues
+rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
+pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
+# Combine
+eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
+# Calculate variance proportions
+variance_proportion <- eigenvalues / sum(eigenvalues) * 100
+
+# Create axis labels
+axis_labels <- c(
+  paste0("RDA", seq_along(rda_eigenvalues)), 
+  paste0("PCA", seq_along(pca_eigenvalues))
+)
+
+# Create a data frame for plotting
+variance_df <- data.frame(
+  Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
+  Variance = variance_proportion
+)
+
+
+(variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
+    geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
+    labs(x = "Axes", y = "Variance Explained (%)") +
+    theme_minimal() +
+    theme(axis.title.x = element_text(size = 16, face = "bold"),
+          axis.title.y = element_text(size = 16, face = "bold"),
+          axis.text.x = element_text(size = 16, face = "bold", angle = 45, hjust = 1),
+          axis.text.y = element_text(size = 16, face = "bold")
+    ))
+
+# Save the plot
+ggsave(
+  filename = "outputs/Fig2/S16_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 8, height = 6, dpi = 300
+)
 
 ###############################################################################
 
@@ -419,7 +494,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 3, alpha = 0.8) +  
+    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -430,7 +505,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
     geom_text(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      hjust = 1.2, vjust = 1.2, color = "black"
+      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
@@ -445,6 +520,43 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 ggsave(
   filename = "outputs/Fig2/S18_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
+)
+
+
+# Extract RDA eigenvalues
+rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
+pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
+# Combine
+eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
+# Calculate variance proportions
+variance_proportion <- eigenvalues / sum(eigenvalues) * 100
+
+# Create axis labels
+axis_labels <- c(
+  paste0("RDA", seq_along(rda_eigenvalues)), 
+  paste0("PCA", seq_along(pca_eigenvalues))
+)
+
+# Create a data frame for plotting
+variance_df <- data.frame(
+  Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
+  Variance = variance_proportion
+)
+
+(variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
+    geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
+    labs(x = "Axes", y = "Variance Explained (%)") +
+    theme_minimal() +
+    theme(axis.title.x = element_text(size = 16, face = "bold"),
+          axis.title.y = element_text(size = 16, face = "bold"),
+          axis.text.x = element_text(size = 16, face = "bold", angle = 45, hjust = 1),
+          axis.text.y = element_text(size = 16, face = "bold")
+    ))
+
+# Save the plot
+ggsave(
+  filename = "outputs/Fig2/S18_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 ###############################################################################
 
@@ -561,7 +673,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 3, alpha = 0.8) +  
+    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -572,7 +684,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
     geom_text(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      hjust = 1.2, vjust = 1.2, color = "black"
+      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#0072B2", "#D55E00")) +
@@ -587,4 +699,42 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 ggsave(
   filename = "outputs/Fig2/COI_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
+)
+
+
+# Extract RDA eigenvalues
+rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
+pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
+# Combine
+eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
+# Calculate variance proportions
+variance_proportion <- eigenvalues / sum(eigenvalues) * 100
+
+# Create axis labels
+axis_labels <- c(
+  paste0("RDA", seq_along(rda_eigenvalues)), 
+  paste0("PCA", seq_along(pca_eigenvalues))
+)
+
+# Create a data frame for plotting
+variance_df <- data.frame(
+  Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
+  Variance = variance_proportion
+)
+
+
+(variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
+    geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
+    labs(x = "Axes", y = "Variance Explained (%)") +
+    theme_minimal() +
+    theme(axis.title.x = element_text(size = 16, face = "bold"),
+          axis.title.y = element_text(size = 16, face = "bold"),
+          axis.text.x = element_text(size = 16, face = "bold", angle = 45, hjust = 1),
+          axis.text.y = element_text(size = 16, face = "bold")
+    ))
+
+# Save the plot
+ggsave(
+  filename = "outputs/Fig2/COI_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 8, height = 6, dpi = 300
 )
