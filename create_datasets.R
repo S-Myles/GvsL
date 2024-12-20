@@ -20,7 +20,7 @@ metadata <- sample_data(metadata)
 S12_ASV_table <- read_tsv("./data/12S_feature-table.tsv") %>%
   column_to_rownames('ASV_ID')     
 # Taxonomy reference table
-S12_taxonomy <- read_tsv("./data/12S_taxonomy.tsv") %>%
+S12_taxonomy <- read_tsv("./data/12S_final_taxonomy.tsv") %>%
   column_to_rownames('Feature ID') %>%
   as.matrix()
 
@@ -86,8 +86,8 @@ rm(S18_ASV_table, S18_taxonomy)
 COI_ASV_table <- read_tsv("./data/COI_feature-table.tsv") %>%
   column_to_rownames('ASV_ID')     
 # Taxonomy reference table
-COI_taxonomy <- read_tsv("./data/COI_taxonomy.tsv") %>%
-  column_to_rownames('Feature ID') %>%
+COI_taxonomy <- read_tsv("./data/COI_final_taxonomy.tsv") %>%
+  column_to_rownames('ASV_ID') %>%
   as.matrix()
 
 # Respective phyloseq objects
@@ -101,6 +101,27 @@ rm(COI_ASV_table, COI_taxonomy)
 ###############################################################################
 
 
+#############################################################################
+# Taxonomic Cleanup
+#####################
+S12_physeq_data <- subset_taxa(S12_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis", "Blumeria", "Squalius"))) %>% 
+  subset_taxa(!(Family == "NA")) %>% 
+  subset_taxa(!is.na(Class))
+
+S16_physeq_data <- subset_taxa(S16_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
+  subset_taxa(!(Phylum == "Eukaryota")) %>% 
+  subset_taxa(!(Family %in% c("Mitochondria", "Chloroplast"))) %>% 
+  subset_taxa(!is.na(Class))
+
+S18_physeq_data <- subset_taxa(S18_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
+  subset_taxa(!(Phylum == "Unassigned")) %>% 
+  subset_taxa(!is.na(Class))
+
+COI_physeq_data <- subset_taxa(COI_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
+  subset_taxa((Superkingdom == "Eukaryota")) %>% 
+  subset_taxa(!(Phylum == "IncompleteTaxonomy")) %>% 
+  subset_taxa(!(Class %in% c("NA")))
+
 
 
 ###############################################################################
@@ -110,13 +131,13 @@ rm(COI_ASV_table, COI_taxonomy)
 ####
 # Remove small size fractions
 ####
-(S12_physeq_data <- subset_samples(S12_physeq_data, Size.Fraction=="L") %>% 
+(S12_physeq_Ldata <- subset_samples(S12_physeq_data, Size.Fraction=="L") %>% 
    filter_taxa(function(x) sum(x > 1) > 0, TRUE))
-(S16_physeq_data <- subset_samples(S16_physeq_data, Size.Fraction=="S") %>% 
+(S16_physeq_Sdata <- subset_samples(S16_physeq_data, Size.Fraction=="S") %>% 
     filter_taxa(function(x) sum(x > 1) > 0, TRUE))
-(S18_physeq_data <- subset_samples(S18_physeq_data, Size.Fraction=="L") %>% 
+(S18_physeq_Ldata <- subset_samples(S18_physeq_data, Size.Fraction=="L") %>% 
     filter_taxa(function(x) sum(x > 1) > 0, TRUE))
-(COI_physeq_data <- subset_samples(COI_physeq_data, Size.Fraction=="L") %>% 
+(COI_physeq_Ldata <- subset_samples(COI_physeq_data, Size.Fraction=="L") %>% 
     filter_taxa(function(x) sum(x > 1) > 0, TRUE))
 
 
@@ -222,17 +243,6 @@ prevCOI = apply(X = otu_table(COI_deep_data),
 
 
 
-table(sample_data(S12_physeq_pruned)$Size.Fraction)
-table(sample_data(S12_physeq_pruned)$Station)
-table(sample_data(S12_physeq_pruned)$Year)
-table(sample_data(S12_physeq_pruned)$Season)
-table(sample_data(S12_physeq_pruned)$Depth)
-
-table(sample_data(S12_physeq_pruned)$Size.Fraction)
-table(sample_data(S12_physeq_pruned)$Station)
-table(sample_data(S12_physeq_pruned)$Year)
-table(sample_data(S12_physeq_pruned)$Season)
-table(sample_data(S12_physeq_pruned)$Depth)
 
 
 # Step 1: Extract sample IDs
@@ -250,5 +260,23 @@ S16_physeq2_pruned <- prune_samples(common_samples, S16_deep_data)
 S18_physeq1_pruned <- prune_samples(common_samples, S18_deep_data)
 COI_physeq2_pruned <- prune_samples(common_samples, COI_deep_data)
 
-# Step 4: Merge the pruned phyloseq objectsCOI_physeq2_pruned
+# Step 4: Merge the pruned phyloseq objects
 merged_physeq <- merge_phyloseq(S12_physeq_pruned, S16_physeq2_pruned, S18_physeq1_pruned,COI_physeq2_pruned)
+
+
+
+
+
+# Assessment of dataset completion
+table(sample_data(S12_physeq_pruned)$Size.Fraction)
+table(sample_data(S12_physeq_pruned)$Station)
+table(sample_data(S12_physeq_pruned)$Year)
+table(sample_data(S12_physeq_pruned)$Season)
+table(sample_data(S12_physeq_pruned)$Depth)
+
+table(sample_data(S12_physeq_pruned)$Size.Fraction)
+table(sample_data(S12_physeq_pruned)$Station)
+table(sample_data(S12_physeq_pruned)$Year)
+table(sample_data(S12_physeq_pruned)$Season)
+table(sample_data(S12_physeq_pruned)$Depth)
+
