@@ -2,34 +2,20 @@ library(vegan)
 library(ggplot2)
 library(viridis)
 
-#Objects created for ease of access
-S12_physeq_data
-S12_P_A_filt
-S12_filt_glom_g
-S16_physeq_data
-S16_P_A_filt
-S16_filt_glom_g
-S18_physeq_data
-S18_P_A_filt
-S18_filt_glom_g
-COI_physeq_data
-COI_P_A_filt
-COI_filt_glom_g
-
 
 #(merged_data <- merge_phyloseq(S12_physeq_data, S18_physeq_data, COI_physeq_data))
 
 # Random sampling sp accumulation analysis from Vegan
-S12_accum_curve <- otu_table(S12_P_A_filt) %>% 
+S12_accum_curve <- otu_table(S12_taxfilt_data) %>% 
   t() %>% 
   specaccum(method = "random")
-S16_accum_curve <- otu_table(S16_P_A_filt) %>% 
+S16_accum_curve <- otu_table(S16_taxfilt_data) %>% 
   t() %>% 
   specaccum(method = "random")
-S18_accum_curve <- otu_table(S18_P_A_filt) %>% 
+S18_accum_curve <- otu_table(S18_taxfilt_data) %>% 
   t() %>% 
   specaccum(method = "random")
-COI_accum_curve <- otu_table(COI_P_A_filt) %>% 
+COI_accum_curve <- otu_table(COI_taxfilt_data) %>% 
   t() %>% 
   specaccum(method = "random")
 #merged_accum_curve <- otu_table(merged_data) %>% 
@@ -51,7 +37,7 @@ accum_data <- rbind(
   scale_color_viridis_d(option = "plasma", end = 0.9) +  # Colorblind-friendly palette
   scale_fill_viridis_d(option = "plasma", end = 0.9) +   # Same palette for fills
   labs(
-    title = "ASV Accumulation Curves (Filtered)",
+    title = "ASV Accumulation Curves",
     x = "Number of Samples",
     y = "Number of ASVs Detected",
     color = "Group",
@@ -71,7 +57,7 @@ accum_data <- rbind(
 
 # Save
 ggsave(
-  filename = "outputs/Fig1/sp-accum_filt_data.png",
+  filename = "outputs/Fig1/asv-accum_tax-filt_ASVs.png",
   plot = plot, width = 5, height = 4, dpi = 300
 )
 
@@ -81,25 +67,13 @@ ggsave(
 
 
 
-# Bellow shows that there is basically no difference between sites
+# Bellow shows differences between sample attributes
 
 
-S12_physeq_data
-S12_P_A_filt
-S12_filt_glom_g
-S16_physeq_data
-S16_P_A_filt
-S16_filt_glom_g
-S18_physeq_data
-S18_P_A_filt
-S18_filt_glom_g
-COI_physeq_data
-COI_P_A_filt
-COI_filt_glom_g
 
 # Spliting data according to site
-gully <- subset_samples(S12_filt_glom_g, Station=="GULD_04")
-LL7 <- subset_samples(S12_filt_glom_g, Station=="LL_07")
+gully <- subset_samples(COI_taxfilt_data, Station=="GULD_04")
+LL7 <- subset_samples(COI_taxfilt_data, Station=="LL_07")
 
 # 1 curve per site
 gully_accum_curve <- otu_table(gully) %>% 
@@ -112,19 +86,19 @@ ll7_accum_curve <- otu_table(LL7) %>%
 
 site_accum_data <- rbind(
   data.frame(SampleNumber = gully_accum_curve$sites, SpeciesDetected = gully_accum_curve$richness, SD = gully_accum_curve$sd, Group = "Gully"),
-  data.frame(SampleNumber = ll7_accum_curve$sites, SpeciesDetected = ll7_accum_curve$richness, SD = ll7_accum_curve$sd, Group = "Louisburg Line")
+  data.frame(SampleNumber = ll7_accum_curve$sites, SpeciesDetected = ll7_accum_curve$richness, SD = ll7_accum_curve$sd, Group = "LL07")
 )
 
 
 # Plot with different line types
-ggplot(site_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group, linetype = Group)) +
+(plot <- ggplot(site_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group, linetype = Group)) +
   geom_line(size = 1) +
   geom_ribbon(aes(ymin = SpeciesDetected - SD, ymax = SpeciesDetected + SD, fill = Group), alpha = 0.2, color = NA) +
   scale_linetype_manual(values = c("solid", "dotted")) +  # Line types for stations
-  scale_color_manual(values = c("#440154FF", "#21908CFF")) +  # Colorblind-friendly colors
-  scale_fill_manual(values = c("#440154FF", "#21908CFF")) +   # Matching fill colors
+  scale_color_manual(values = c("#007A4D", "#E65100")) +  # Colorblind-friendly colors
+  scale_fill_manual(values = c("#007A4D", "#E65100")) +   # Matching fill colors
   labs(
-    title = "Species Accumulation Curves by Station",
+    title = "ASV Accumulation Curves by Station",
     x = "Number of Samples",
     y = "Number of Species Detected",
     color = "Group",
@@ -133,12 +107,129 @@ ggplot(site_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-    axis.title.x = element_text(size = 14, face = "bold"),
-    axis.title.y = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold"),
     axis.text.x = element_text(size = 12),
     axis.text.y = element_text(size = 12),
-    legend.title = element_text(size = 14, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
     legend.text = element_text(size = 12)
-  )
+  ))
 
+# Save
+ggsave(
+  filename = "outputs/Fig1/COI-SITES-accum_tax-filt_ASVs.png",
+  plot = plot, width = 5, height = 4, dpi = 300
+)
+
+
+
+
+
+
+# Spliting data according to seasons
+spring <- subset_samples(COI_taxfilt_data, Season=="S")
+fall <- subset_samples(COI_taxfilt_data, Season=="F")
+
+# 1 curve per site
+spring_accum_curve <- otu_table(spring) %>% 
+  t() %>% 
+  specaccum(method = "random")
+fall_accum_curve <- otu_table(fall) %>% 
+  t() %>% 
+  specaccum(method = "random")
+
+
+site_accum_data <- rbind(
+  data.frame(SampleNumber = spring_accum_curve$sites, SpeciesDetected = spring_accum_curve$richness, SD = spring_accum_curve$sd, Group = "Spring"),
+  data.frame(SampleNumber = fall_accum_curve$sites, SpeciesDetected = fall_accum_curve$richness, SD = fall_accum_curve$sd, Group = "Fall")
+)
+
+
+# Plot with different line types
+(plot <- ggplot(site_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group, linetype = Group)) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = SpeciesDetected - SD, ymax = SpeciesDetected + SD, fill = Group), alpha = 0.2, color = NA) +
+    scale_linetype_manual(values = c("solid", "dotted")) +  # Line types for stations
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +  # Colorblind-friendly colors
+    scale_fill_manual(values = c("#440154FF", "#21908CFF")) +   # Matching fill colors
+    labs(
+      title = "ASV Accumulation Curves by Season",
+      x = "Number of Samples",
+      y = "Number of Species Detected",
+      color = "Group",
+      linetype = "Group",
+      fill = "Group"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.x = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
+      legend.title = element_text(size = 12, face = "bold"),
+      legend.text = element_text(size = 12)
+    ))
+
+# Save
+ggsave(
+  filename = "outputs/Fig1/COI-SEASOIN_accum_tax-filt_ASVs.png",
+  plot = plot, width = 5, height = 4, dpi = 300
+)
+
+
+
+
+
+
+# Spliting data according to site
+small <- subset_samples(COI_taxfilt_data, Size.Fraction=="S")
+large <- subset_samples(COI_taxfilt_data, Size.Fraction=="L")
+
+# 1 curve per site
+small_accum_curve <- otu_table(small) %>% 
+  t() %>% 
+  specaccum(method = "random")
+large_accum_curve <- otu_table(large) %>% 
+  t() %>% 
+  specaccum(method = "random")
+
+
+site_accum_data <- rbind(
+  data.frame(SampleNumber = small_accum_curve$sites, SpeciesDetected = small_accum_curve$richness, SD = small_accum_curve$sd, Group = "Small"),
+  data.frame(SampleNumber = large_accum_curve$sites, SpeciesDetected = large_accum_curve$richness, SD = large_accum_curve$sd, Group = "Large")
+)
+
+
+# Plot with different line types
+(plot <- ggplot(site_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group, linetype = Group)) +
+    geom_line(size = 1) +
+    geom_ribbon(aes(ymin = SpeciesDetected - SD, ymax = SpeciesDetected + SD, fill = Group), alpha = 0.2, color = NA) +
+    scale_linetype_manual(values = c("solid", "dotted")) +  # Line types for stations
+    scale_color_manual(values = c("#FDD835", "#C2185B")) +  # Colorblind-friendly colors
+    scale_fill_manual(values = c("#FDD835", "#C2185B")) +   # Matching fill colors
+    labs(
+      title = "ASV Accumulation Curves by Size Fraction",
+      x = "Number of Samples",
+      y = "Number of Species Detected",
+      color = "Group",
+      linetype = "Group",
+      fill = "Group"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 12, face = "bold", hjust = 0.5),
+      axis.title.x = element_text(size = 12, face = "bold"),
+      axis.title.y = element_text(size = 12, face = "bold"),
+      axis.text.x = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
+      legend.title = element_text(size = 12, face = "bold"),
+      legend.text = element_text(size = 12)
+    ))
+
+# Save
+ggsave(
+  filename = "outputs/Fig1/COI-SF-accum_tax-filt_ASVs.png",
+  plot = plot, width = 5, height = 4, dpi = 300
+)
