@@ -47,8 +47,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/S12_PCA_variance_explained.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/pca/ONESF-S12_PCA_variance_explained.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 # Plot PCA
@@ -79,7 +79,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/S12_PCA.png",
+  filename = "outputs/beta/pca/ONESF-S12_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -143,7 +143,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/S12_RDA.png",
+  filename = "outputs/beta/rda/ONESF-S12_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -182,8 +182,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/S12_RDA_PCA_variance_explained_ordered.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/rda/ONESF-S12_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 ###############################################################################
@@ -237,8 +237,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/S16_PCA_variance_explained.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/pca/ONESF-S16_PCA_variance_explained.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 # Plot PCA
@@ -269,7 +269,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/S16_PCA.png",
+  filename = "outputs/beta/pca/ONESF-S16_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -333,7 +333,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/S16_RDA.png",
+  filename = "outputs/beta/rda/ONESF-S16_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -371,8 +371,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/S16_RDA_PCA_variance_explained_ordered.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/rda/ONESF-S16_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 ###############################################################################
@@ -422,8 +422,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/S18_PCA_variance_explained.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/pca/ONESF-S18_PCA_variance_explained.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 # Plot PCA
@@ -454,7 +454,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/S18_PCA.png",
+  filename = "outputs/beta/pca/ONESF-S18_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -518,7 +518,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/S18_RDA.png",
+  filename = "outputs/beta/rda/ONESF-S18_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -555,8 +555,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/S18_RDA_PCA_variance_explained_ordered.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/rda/ONESF-S18_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 ###############################################################################
 
@@ -603,8 +603,8 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/COI_PCA_variance_explained.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/pca/ONESF-COI_PCA_variance_explained.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 # Plot PCA
@@ -635,7 +635,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/COI_PCA.png",
+  filename = "outputs/beta/pca/ONESF-COI_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -700,7 +700,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/COI_RDA.png",
+  filename = "outputs/beta/rda/ONESF-COI_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -738,6 +738,6 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/COI_RDA_PCA_variance_explained_ordered.png",
-  plot = variance_plot, width = 8, height = 6, dpi = 300
+  filename = "outputs/beta/rda/ONESF-COI_RDA_PCA_variance_explained_ordered.png",
+  plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )

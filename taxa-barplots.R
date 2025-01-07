@@ -45,7 +45,7 @@ ps_melted <- psmelt(S12_physeq_agg) %>%
 ggsave(
   filename = "outputs/tax_barplots/S12-sp_barplot.png",
   plot = plot,
-  width = 12, height = 6,
+  width = 8, height = 6,
   dpi = 300
 )
 
@@ -84,7 +84,7 @@ ps_melted <- psmelt(S16_physeq_agg) %>%
 ggsave(
   filename = "outputs/tax_barplots/S16-phylum_barplot.png",
   plot = plot,
-  width = 12, height = 6,
+  width = 8, height = 6,
   dpi = 300
 )
 
@@ -122,7 +122,7 @@ ps_melted <- psmelt(S18_physeq_agg) %>%
 ggsave(
   filename = "outputs/tax_barplots/S18-phylum_barplot.png",
   plot = plot,
-  width = 14, height = 6,
+  width = 8, height = 6,
   dpi = 300
 )
 
@@ -162,6 +162,6 @@ ps_melted <- psmelt(COI_physeq_agg) %>%
 ggsave(
   filename = "outputs/tax_barplots/COI-phylum_barplot.png",
   plot = plot,
-  width = 12, height = 6,
+  width = 8, height = 6,
   dpi = 300
 )
