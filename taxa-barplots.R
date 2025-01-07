@@ -19,12 +19,12 @@ custom_labeller <- labeller(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-S12_P_A_filt_agg <- S12_P_A_filt %>%
-  tax_glom(taxrank = "Species") %>%  # Aggregate at the Species level
+S12_physeq_agg <- S12_physeq_Ldata %>%
+  #tax_glom(taxrank = "Species") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
 # Melt the data for ggplot
-ps_melted <- psmelt(S12_P_A_filt_agg) %>% 
+ps_melted <- psmelt(S12_physeq_agg) %>% 
   mutate(Date = factor(Date, levels = c("2014_S", "2014_F",
                                         "2016_F", "2017_S",
                                         "2017_F", "2018_S")))
@@ -38,16 +38,18 @@ ps_melted <- psmelt(S12_P_A_filt_agg) %>%
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       strip.text = element_text(size = 10),
-      #legend.position = "none"
+      legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig-barplot/S12-sp-ra_faceted_barplot.png",
+  filename = "outputs/tax_barplots/S12-sp_barplot.png",
   plot = plot,
-  width = 8, height = 6,
+  width = 12, height = 6,
   dpi = 300
 )
+
+
 
 
 ########
@@ -56,12 +58,12 @@ ggsave(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-S16_P_A_filt_agg <- S16_P_A_filt %>%
-  tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
+S16_physeq_agg <- S16_physeq_Sdata %>%
+  #tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
 # Melt the data for ggplot
-ps_melted <- psmelt(S16_P_A_filt_agg) %>% 
+ps_melted <- psmelt(S16_physeq_agg) %>% 
   mutate(Date = factor(Date, levels = c("2014_S", "2014_F",
                                         "2016_F", "2017_S",
                                         "2017_F", "2018_S")))
@@ -75,14 +77,14 @@ ps_melted <- psmelt(S16_P_A_filt_agg) %>%
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       strip.text = element_text(size = 10),
-      #legend.position = "none"
+      legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig-barplot/S16-phylum-ra_faceted_barplot.png",
+  filename = "outputs/tax_barplots/S16-phylum_barplot.png",
   plot = plot,
-  width = 8, height = 6,
+  width = 12, height = 6,
   dpi = 300
 )
 
@@ -94,12 +96,12 @@ ggsave(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-S18_P_A_filt_agg <- S18_P_A_filt %>%
-  tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
+S18_physeq_agg <- S18_physeq_Ldata %>%
+  #tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
 # Melt the data for ggplot
-ps_melted <- psmelt(S18_P_A_filt_agg) %>% 
+ps_melted <- psmelt(S18_physeq_agg) %>% 
   mutate(Date = factor(Date, levels = c("2014_S", "2014_F",
                                         "2016_F", "2017_S",
                                         "2017_F", "2018_S")))
@@ -113,14 +115,14 @@ ps_melted <- psmelt(S18_P_A_filt_agg) %>%
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       strip.text = element_text(size = 10),
-      #legend.position = "none"
+      legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig-barplot/S18-Phylum-ra_faceted_barplot.png",
+  filename = "outputs/tax_barplots/S18-phylum_barplot.png",
   plot = plot,
-  width = 8, height = 6,
+  width = 14, height = 6,
   dpi = 300
 )
 
@@ -134,12 +136,12 @@ ggsave(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-COI_P_A_filt_agg <- COI_P_A_filt %>%
-  tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
+COI_physeq_agg <- COI_physeq_Ldata %>%
+  #tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
 # Melt the data for ggplot
-ps_melted <- psmelt(COI_P_A_filt_agg) %>% 
+ps_melted <- psmelt(COI_physeq_agg) %>% 
   mutate(Date = factor(Date, levels = c("2014_S", "2014_F",
                                         "2016_F", "2017_S",
                                         "2017_F", "2018_S")))
@@ -153,13 +155,13 @@ ps_melted <- psmelt(COI_P_A_filt_agg) %>%
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       strip.text = element_text(size = 10),
-      #legend.position = "none"
+      legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig-barplot/COI-Phylum-ra_faceted_barplot.png",
+  filename = "outputs/tax_barplots/COI-phylum_barplot.png",
   plot = plot,
-  width = 8, height = 6,
+  width = 12, height = 6,
   dpi = 300
 )
