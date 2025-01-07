@@ -21,12 +21,13 @@ mean(S12_alpha$Chao1)
 mean(S12_alpha$Shannon)
 mean(S12_alpha$Pielou)
 
-(plot <- ggplot(S12_alpha, aes(x = Season, y = Chao1, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S12_alpha, aes(x = Size.Fraction, y = Chao1, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S12_alpha$Chao1), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S12_alpha$Chao1) - 22, mean(S12_alpha$Chao1) + 22) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + 
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -38,16 +39,17 @@ mean(S12_alpha$Pielou)
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S12_seasonal_Chao1.png",
+  filename = "outputs/alpha/S12_Chao1.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(S12_alpha, aes(x = Season, y = Shannon, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S12_alpha, aes(x = Size.Fraction, y = Shannon, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S12_alpha$Shannon), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S12_alpha$Shannon) - 1, mean(S12_alpha$Shannon) + 1) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -59,16 +61,17 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S12_seasonal_Shannon.png",
+  filename = "outputs/alpha/S12_Shannon.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(S12_alpha, aes(x = Season, y = Pielou, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S12_alpha, aes(x = Size.Fraction, y = Pielou, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S12_alpha$Pielou), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S12_alpha$Pielou) - 0.3, mean(S12_alpha$Pielou) + 0.3) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -80,7 +83,7 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S12_seasonal_Pielou.png",
+  filename = "outputs/alpha/S12_Pielou.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 ###############################################################################
@@ -109,12 +112,13 @@ mean(S16_alpha$Shannon)
 mean(S16_alpha$Pielou)
 
 
-(plot <- ggplot(S16_alpha, aes(x = Season, y = Chao1, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S16_alpha, aes(x = Size.Fraction, y = Chao1, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S16_alpha$Chao1), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S16_alpha$Chao1) - 590, mean(S16_alpha$Chao1) + 590) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -126,16 +130,17 @@ mean(S16_alpha$Pielou)
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S16_seasonal_Chao1.png",
+  filename = "outputs/alpha/S16_Chao1.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(S16_alpha, aes(x = Season, y = Shannon, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S16_alpha, aes(x = Size.Fraction, y = Shannon, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S16_alpha$Shannon), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S16_alpha$Shannon) - 1.1, mean(S16_alpha$Shannon) + 1.1) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -147,16 +152,17 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S16_seasonal_Shannon.png",
+  filename = "outputs/alpha/S16_Shannon.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(S16_alpha, aes(x = Season, y = Pielou, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S16_alpha, aes(x = Size.Fraction, y = Pielou, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S16_alpha$Pielou), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S16_alpha$Pielou) - 0.18, mean(S16_alpha$Pielou) + 0.18) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -168,7 +174,7 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S16_seasonal_Pielou.png",
+  filename = "outputs/alpha/S16_Pielou.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 ###############################################################################
@@ -198,12 +204,13 @@ mean(S18_alpha$Shannon)
 mean(S18_alpha$Pielou)
 
 
-(plot <- ggplot(S18_alpha, aes(x = Season, y = Chao1, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S18_alpha, aes(x = Size.Fraction, y = Chao1, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S18_alpha$Chao1), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S18_alpha$Chao1) - 550, mean(S18_alpha$Chao1) + 550) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -215,16 +222,17 @@ mean(S18_alpha$Pielou)
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S18_seasonal_Chao1.png",
+  filename = "outputs/alpha/S18_Chao1.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(S18_alpha, aes(x = Season, y = Shannon, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S18_alpha, aes(x = Size.Fraction, y = Shannon, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S18_alpha$Shannon), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S18_alpha$Shannon) -2.3, mean(S18_alpha$Shannon) + 2.3) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -236,16 +244,17 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S18_seasonal_Shannon.png",
+  filename = "outputs/alpha/S18_Shannon.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(S18_alpha, aes(x = Season, y = Pielou, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(S18_alpha, aes(x = Size.Fraction, y = Pielou, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(S18_alpha$Pielou), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(S18_alpha$Pielou) - 0.35, mean(S18_alpha$Pielou) + 0.35) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -257,7 +266,7 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S18_seasonal_Pielou.png",
+  filename = "outputs/alpha/S18_Pielou.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 ###############################################################################
@@ -286,12 +295,13 @@ mean(COI_alpha$Shannon)
 mean(COI_alpha$Pielou)
 
 
-(plot <- ggplot(COI_alpha, aes(x = Season, y = Chao1, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(COI_alpha, aes(x = Size.Fraction, y = Chao1, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Chao1), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(COI_alpha$Chao1), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(COI_alpha$Chao1) - 260, mean(COI_alpha$Chao1) + 260) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -303,16 +313,17 @@ mean(COI_alpha$Pielou)
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/COI_seasonal_Chao1.png",
+  filename = "outputs/alpha/COI_Chao1.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(COI_alpha, aes(x = Season, y = Shannon, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(COI_alpha, aes(x = Size.Fraction, y = Shannon, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Shannon), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(COI_alpha$Shannon), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(COI_alpha$Shannon) - 2.2, mean(COI_alpha$Shannon) + 2.2) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -324,16 +335,17 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/COI_seasonal_Shannon.png",
+  filename = "outputs/alpha/COI_Shannon.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
-(plot <- ggplot(COI_alpha, aes(x = Season, y = Pielou, color = Size.Fraction)) +
-    geom_violin(aes(x = Season, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
+(plot <- ggplot(COI_alpha, aes(x = Size.Fraction, y = Pielou, color = Season)) +
+    geom_violin(aes(x = Size.Fraction, y = Pielou), fill = "gray", alpha = 0.5, color = NA) + # Single violin for all samples per Season
     geom_jitter(size = 5, alpha = 0.7, width = 0.1) +
     geom_hline(yintercept = mean(COI_alpha$Pielou), linetype = "dashed", color = "red", size = 1) + # Add mean line
     ylim(mean(COI_alpha$Pielou) - 0.35, mean(COI_alpha$Pielou) + 0.35) + # Set y-axis limits
-    scale_color_manual(values = c("#0072B2", "#D55E00")) + # Customize colors
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) + # Customize colors
+    scale_x_discrete(labels = c("Large", "Small")) +
     theme_minimal() +
     theme(
       strip.text = element_blank(),
@@ -345,7 +357,7 @@ ggsave(
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/COI_seasonal_Pielou.png",
+  filename = "outputs/alpha/COI_Pielou.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 ###############################################################################
