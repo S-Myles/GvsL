@@ -14,7 +14,7 @@ theme_set(theme_bw())
 # -------------- PCA for visualization
 ########
 # CLR Transform
-S12_CLR <- microbiome::transform(S12_P_A_filt, "clr")
+S12_CLR <- microbiome::transform(S12_filt_data, "clr")
 otu_clr_t <- t(as.data.frame(otu_table(S12_CLR))) # Transposed for vegan::rda
 
 # Perform PCA using vegan::rda (PCA is applied as the last step in RDA, 
@@ -26,7 +26,8 @@ explained_variance <- summary(S12_PCA)$cont$importance["Proportion Explained", ]
 variance_df <- data.frame(
   PC = paste0("PC", seq_along(explained_variance)),
   Variance = explained_variance) %>%
-  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance))))
+  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance)))) %>% 
+  slice(1:20)
 
 
 # Plot variance explained histogram
@@ -46,7 +47,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S12_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/S12_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -61,10 +62,10 @@ metadata$SampleID <- rownames(metadata)
 pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Plotting PCA
-(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Station, shape = Season)) +
+(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Season, shape = Size.Fraction)) +
     geom_point(size = 5) +
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     labs(
       x = paste0("PC1 (", round(explained_variance[1], 1), "%)"),
       y = paste0("PC2 (", round(explained_variance[2], 1), "%)")
@@ -78,12 +79,9 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S12_PCA.png",
+  filename = "outputs/beta/pca/S12_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
-
-
-
 
 
 #######
@@ -101,9 +99,9 @@ metadata$SampleID <- rownames(metadata)
 metadata <- metadata[, c("SampleID", setdiff(names(metadata), "SampleID"))]
 metadata <- metadata %>%
   as_tibble() %>%
-  mutate(across(c(3, 4, 5, 7), as.factor)) %>%         # Convert selected columns to factors
+  mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(2:6)                                          # Adjust to include only relevant columns
+  select(c(4, 5, 6, 9, 10))                                 # only relevant columns
 
 # Perform db-RDA
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
@@ -121,7 +119,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
+    geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -135,7 +133,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
@@ -145,7 +143,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/S12_RDA.png",
+  filename = "outputs/beta/rda/S12_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -168,7 +166,8 @@ axis_labels <- c(
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
   Variance = variance_proportion
-)
+) %>% 
+  slice(1:20)
 
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
@@ -183,16 +182,11 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S12_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/S12_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
 ###############################################################################
-
-
-
-
-
 
 
 
@@ -211,7 +205,7 @@ ggsave(
 # -------------- PCA for visualization
 ########
 # CLR Transform
-S16_CLR <- microbiome::transform(S16_P_A_filt, "clr")
+S16_CLR <- microbiome::transform(S16_filt_data, "clr")
 otu_clr_t <- t(as.data.frame(otu_table(S16_CLR))) # Transposed for vegan::rda
 
 # Perform PCA using vegan::rda
@@ -222,7 +216,8 @@ explained_variance <- summary(S16_PCA)$cont$importance["Proportion Explained", ]
 variance_df <- data.frame(
   PC = paste0("PC", seq_along(explained_variance)),
   Variance = explained_variance) %>%
-  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance))))
+  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance)))) %>% 
+  slice(1:20)
 
 
 # Plot variance explained histogram
@@ -242,7 +237,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S16_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/S16_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -257,10 +252,10 @@ metadata$SampleID <- rownames(metadata)
 pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Plotting PCA
-(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Station, shape = Season)) +
+(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Season, shape = Size.Fraction)) +
     geom_point(size = 5) +
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     labs(
       x = paste0("PC1 (", round(explained_variance[1], 1), "%)"),
       y = paste0("PC2 (", round(explained_variance[2], 1), "%)")
@@ -269,12 +264,12 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
       axis.text = element_text(size = 18, face = "bold"),
-      legend.position = "none" 
+      legend.position = "none"
     ))
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S16_PCA.png",
+  filename = "outputs/beta/pca/S16_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -294,9 +289,9 @@ metadata$SampleID <- rownames(metadata)
 metadata <- metadata[, c("SampleID", setdiff(names(metadata), "SampleID"))]
 metadata <- metadata %>%
   as_tibble() %>%
-  mutate(across(c(3, 4, 5, 7), as.factor)) %>%         # Convert selected columns to factors
+  mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(2:6)                                          # Adjust to include only relevant columns
+  select(c(4, 5, 6, 9, 10))                     
 
 # Perform db-RDA
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
@@ -314,7 +309,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
+    geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -328,7 +323,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
@@ -338,7 +333,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/S16_RDA.png",
+  filename = "outputs/beta/rda/S16_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -360,8 +355,8 @@ axis_labels <- c(
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion
-)
+  Variance = variance_proportion) %>% 
+  slice(1:20)
 
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
@@ -376,11 +371,15 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S16_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/S16_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
 ###############################################################################
+
+
+
+
 
 
 
@@ -391,7 +390,7 @@ ggsave(
 # -------------- PCA for visualization
 ########
 # CLR Transform
-S18_CLR <- microbiome::transform(S18_P_A_filt, "clr")
+S18_CLR <- microbiome::transform(S18_filt_data, "clr")
 otu_clr_t <- t(as.data.frame(otu_table(S18_CLR))) # Transposed for vegan::rda
 
 # Perform PCA using vegan::rda
@@ -402,7 +401,8 @@ explained_variance <- summary(S18_PCA)$cont$importance["Proportion Explained", ]
 variance_df <- data.frame(
   PC = paste0("PC", seq_along(explained_variance)),
   Variance = explained_variance) %>%
-  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance))))
+  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance)))) %>% 
+  slice(1:20)
 
 
 # Plot variance explained histogram
@@ -422,7 +422,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S18_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/S18_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -437,10 +437,10 @@ metadata$SampleID <- rownames(metadata)
 pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Plotting PCA
-(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Station, shape = Season)) +
+(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Season, shape = Size.Fraction)) +
     geom_point(size = 5) +
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     labs(
       x = paste0("PC1 (", round(explained_variance[1], 1), "%)"),
       y = paste0("PC2 (", round(explained_variance[2], 1), "%)")
@@ -449,12 +449,12 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
       axis.text = element_text(size = 18, face = "bold"),
-      legend.position = "none" 
+      legend.position = "none"
     ))
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/S18_PCA.png",
+  filename = "outputs/beta/pca/S18_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -474,9 +474,9 @@ metadata$SampleID <- rownames(metadata)
 metadata <- metadata[, c("SampleID", setdiff(names(metadata), "SampleID"))]
 metadata <- metadata %>%
   as_tibble() %>%
-  mutate(across(c(3, 4, 5, 7), as.factor)) %>%         # Convert selected columns to factors
+  mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(2:6)                                          # Adjust to include only relevant columns
+  select(4, 5, 6, 9, 10)                                          # Adjust to include only relevant columns
 
 # Perform db-RDA
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
@@ -494,7 +494,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
+    geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -508,7 +508,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
@@ -518,7 +518,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/S18_RDA.png",
+  filename = "outputs/beta/rda/S18_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -540,8 +540,8 @@ axis_labels <- c(
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion
-)
+  Variance = variance_proportion) %>% 
+  slice(1:20)
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
     geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
@@ -555,10 +555,12 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/S18_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/S18_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 ###############################################################################
+
+
 
 
 
@@ -569,7 +571,7 @@ ggsave(
 # -------------- PCA for visualization
 ########
 # CLR Transform
-COI_CLR <- microbiome::transform(COI_P_A_filt, "clr")
+COI_CLR <- microbiome::transform(COI_filt_data, "clr")
 otu_clr_t <- t(as.data.frame(otu_table(COI_CLR))) # Transposed for vegan::rda
 
 # Perform PCA using vegan::rda
@@ -580,7 +582,8 @@ explained_variance <- summary(COI_PCA)$cont$importance["Proportion Explained", ]
 variance_df <- data.frame(
   PC = paste0("PC", seq_along(explained_variance)),
   Variance = explained_variance) %>%
-  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance))))
+  mutate(PC = factor(PC, levels = paste0("PC", seq_along(explained_variance)))) %>% 
+  slice(1:20)
 
 
 # Plot variance explained histogram
@@ -600,7 +603,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/COI_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/COI_PCA_variance_explained.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )
 
@@ -615,10 +618,10 @@ metadata$SampleID <- rownames(metadata)
 pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Plotting PCA
-(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Station, shape = Season)) +
+(plot <- ggplot(data = pca_plot_data, aes(x = PC1, y = PC2, color = Season, shape = Size.Fraction)) +
     geom_point(size = 5) +
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     labs(
       x = paste0("PC1 (", round(explained_variance[1], 1), "%)"),
       y = paste0("PC2 (", round(explained_variance[2], 1), "%)")
@@ -627,12 +630,12 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
       axis.text = element_text(size = 18, face = "bold"),
-      legend.position = "none" 
+      legend.position = "none"
     ))
 
 # Save
 ggsave(
-  filename = "outputs/Fig2/COI_PCA.png",
+  filename = "outputs/beta/pca/COI_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -653,9 +656,9 @@ metadata$SampleID <- rownames(metadata)
 metadata <- metadata[, c("SampleID", setdiff(names(metadata), "SampleID"))]
 metadata <- metadata %>%
   as_tibble() %>%
-  mutate(across(c(3, 4, 5, 7), as.factor)) %>%         # Convert selected columns to factors
+  mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(2:6)                                          # Adjust to include only relevant columns
+  select(4, 5, 6, 9, 10)                                          # Adjust to include only relevant columns
 
 # Perform db-RDA
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
@@ -673,7 +676,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # RDA plot
 (plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
-    geom_point(aes(color = Station, shape = Season), size = 4, alpha = 0.8) +  
+    geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
@@ -687,7 +690,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
       size = 5, hjust = 1.2, vjust = 1.2, color = "black"
     ) +                                                  # Vector labels
     scale_shape_manual(values = c(16, 9)) +
-    scale_color_manual(values = c("#0072B2", "#D55E00")) +
+    scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
       axis.title.x = element_text(size = 18, face = "bold"),
       axis.title.y = element_text(size = 18, face = "bold"),
@@ -697,7 +700,7 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/Fig2/COI_RDA.png",
+  filename = "outputs/beta/rda/COI_RDA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -719,8 +722,8 @@ axis_labels <- c(
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion
-)
+  Variance = variance_proportion) %>% 
+  slice(1:20)
 
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
@@ -735,6 +738,6 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/Fig2/COI_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/COI_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 8, height = 6, dpi = 300
 )

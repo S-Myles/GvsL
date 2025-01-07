@@ -306,8 +306,6 @@ write.csv(S18_summary, "outputs/S18_sample_summary.csv", row.names = FALSE)
 write.csv(COI_summary, "outputs/COI_sample_summary.csv", row.names = FALSE)
 
 
-
-
 # Step 1: Extract sample IDs
 sample_ids12S <- as.character(sample_names(S12_filt_data))
 #sample_ids12S <- gsub("(-L|-S)$", "", sample_ids12S)
