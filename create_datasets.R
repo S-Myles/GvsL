@@ -20,7 +20,7 @@ metadata <- sample_data(metadata)
 S12_ASV_table <- read_tsv("./data/12S_feature-table.tsv") %>%
   column_to_rownames('ASV_ID')     
 # Taxonomy reference table
-S12_taxonomy <- read_tsv("./data/12S_final_taxonomy.tsv") %>%
+S12_taxonomy <- read_tsv("./data/12S_taxonomy.tsv") %>%
   column_to_rownames('Feature ID') %>%
   as.matrix()
 
@@ -86,7 +86,7 @@ rm(S18_ASV_table, S18_taxonomy)
 COI_ASV_table <- read_tsv("./data/COI_feature-table.tsv") %>%
   column_to_rownames('ASV_ID')     
 # Taxonomy reference table
-COI_taxonomy <- read_tsv("./data/COI_final_taxonomy.tsv") %>%
+COI_taxonomy <- read_tsv("./data/COI_taxonomy.tsv") %>%
   column_to_rownames('ASV_ID') %>%
   as.matrix()
 

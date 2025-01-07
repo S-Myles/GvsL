@@ -7,7 +7,7 @@ library(phyloseq)
 # 12S
 ######
 # Import data
-S12_tax <- tax_table(S12_P_A_filt) %>% 
+S12_tax <- tax_table(S12_physeq_data) %>% 
   as.data.frame()
 
 # Calculate assigned vs unassigned proportions
@@ -16,7 +16,8 @@ S12_proportion_table <- S12_tax %>%
                                          prop_na = sum(is.na(.)) / n()
                                          ))) %>%
   pivot_longer(cols = everything(), names_to = "taxonomic_level", values_to = "Proportion")
-S12_proportion_table <- bind_cols(S12_proportion_table$taxonomic_level, S12_proportion_table$Proportion)
+S12_proportion_table <- bind_cols(S12_proportion_table$taxonomic_level, S12_proportion_table$Proportion) %>% 
+  slice(1:6)
 colnames(S12_proportion_table) <- c("Taxonomic_level", "Proportion_assigned", "Proportion_unknown")
 
 # Make it plotable
@@ -57,7 +58,7 @@ S12_proportion_table_long <- S12_proportion_table %>%
 
 #Save
 ggsave(
-  filename = "outputs/Fig1/S12-filt_tax_coverage.png",
+  filename = "outputs/tax_coverage/S12_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ##########################################################################################################
@@ -66,7 +67,7 @@ ggsave(
 ##########
 #16S
 ##########
-S16_tax <- tax_table(S16_P_A_filt) %>% 
+S16_tax <- tax_table(S16_physeq_data) %>% 
   as.data.frame()
 
 S16_proportion_table <- S16_tax %>% 
@@ -74,7 +75,8 @@ S16_proportion_table <- S16_tax %>%
                                          prop_na = sum(is.na(.)) / n()
   ))) %>%
   pivot_longer(cols = everything(), names_to = "taxonomic_level", values_to = "Proportion")
-S16_proportion_table <- bind_cols(S16_proportion_table$taxonomic_level, S16_proportion_table$Proportion)
+S16_proportion_table <- bind_cols(S16_proportion_table$taxonomic_level, S16_proportion_table$Proportion) %>% 
+  slice(2:7)
 colnames(S16_proportion_table) <- c("Taxonomic_level", "Proportion_assigned", "Proportion_unknown")
 
 
@@ -113,7 +115,7 @@ S16_proportion_table_long <- S16_proportion_table %>%
     ))
 
 ggsave(
-  filename = "outputs/Fig1/S16-filt_tax_coverage.png",
+  filename = "outputs/tax_coverage/S16_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ####################################################################################################
@@ -124,7 +126,7 @@ ggsave(
 ##########
 #18S
 ##########
-S18_tax <- tax_table(S18_P_A_filt) %>% 
+S18_tax <- tax_table(S18_physeq_data) %>% 
   as.data.frame()
 
 S18_proportion_table <- S18_tax %>% 
@@ -132,9 +134,9 @@ S18_proportion_table <- S18_tax %>%
                                          prop_na = sum(is.na(.)) / n()
   ))) %>%
   pivot_longer(cols = everything(), names_to = "taxonomic_level", values_to = "Proportion")
-S18_proportion_table <- bind_cols(S18_proportion_table$taxonomic_level, S18_proportion_table$Proportion)
+S18_proportion_table <- bind_cols(S18_proportion_table$taxonomic_level, S18_proportion_table$Proportion) %>% 
+  slice(2:7)
 colnames(S18_proportion_table) <- c("Taxonomic_level", "Proportion_assigned", "Proportion_unknown")
-
 
 S18_proportion_table_long <- S18_proportion_table %>%
   pivot_longer(
@@ -171,7 +173,7 @@ S18_proportion_table_long <- S18_proportion_table %>%
     ))
 
 ggsave(
-  filename = "outputs/Fig1/S18-filt_tax_coverage.png",
+  filename = "outputs/tax_coverage/S18_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ####################################################################################################
@@ -181,9 +183,9 @@ ggsave(
 
 
 ##########
-#18S
+#COI
 ##########
-COI_tax <- tax_table(COI_P_A_filt) %>% 
+COI_tax <- tax_table(COI_physeq_data) %>% 
   as.data.frame()
 
 COI_proportion_table <- COI_tax %>% 
@@ -191,7 +193,8 @@ COI_proportion_table <- COI_tax %>%
                                          prop_na = sum(is.na(.)) / n()
   ))) %>%
   pivot_longer(cols = everything(), names_to = "taxonomic_level", values_to = "Proportion")
-COI_proportion_table <- bind_cols(COI_proportion_table$taxonomic_level, COI_proportion_table$Proportion)
+COI_proportion_table <- bind_cols(COI_proportion_table$taxonomic_level, COI_proportion_table$Proportion) %>% 
+  slice(2:7)
 colnames(COI_proportion_table) <- c("Taxonomic_level", "Proportion_assigned", "Proportion_unknown")
 
 
@@ -230,7 +233,7 @@ COI_proportion_table_long <- COI_proportion_table %>%
     ))
 
 ggsave(
-  filename = "outputs/Fig1/COI-filt_tax_coverage.png",
+  filename = "outputs/tax_coverage/COI_tax_coverage.png",
   plot = plot, width = 10, height = 2, dpi = 300
 )
 ####################################################################################################
