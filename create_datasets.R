@@ -283,6 +283,11 @@ rm(S12_deep_bt_taxfilt_data, S16_deep_bt_taxfilt_data, S18_deep_bt_taxfilt_data,
    sample_sum_df, prev12S, prev16S, prev18S, prevCOI)
 #################################################################################
 
+################################################################################
+# Optional cleanup
+#rm(list = ls(pattern = "^(COI_|S12_|S16_|S18_)(physeq_data|physeq_Ldata|physeq_Sdata|summary)"))
+#rm(metadata, track_per_sample_step)
+
 
 ###############################################################################
 # Finalize and print summary datasets

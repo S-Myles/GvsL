@@ -1,8 +1,10 @@
 # Packages
+library(phyloseq)     # Data structure and functions for seq data
+library(tidyverse)    # Data handling and all
 library(microbiome)   # Contains CLR data transformation
 library(ggthemes)
+library(ggrepel)
 library(vegan)
-library(compositions) # For CLR transformation
 
 # Global plot theme setting
 theme_set(theme_bw())
@@ -47,7 +49,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/ONESF-S12_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/S12_PCA_variance_explained.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
@@ -79,7 +81,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/ONESF-S12_PCA.png",
+  filename = "outputs/beta/pca/S12_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -101,37 +103,53 @@ metadata <- metadata %>%
   as_tibble() %>%
   mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(c(4, 5, 6, 9, 10))                                 # only relevant columns
+  select(c("Size.Fraction", "Depth", "Season", "Station", "Year"))   # Columns of sample attributes to model (ordered)
 
-# Perform db-RDA
+# Perform db-RDA with predictors of interest, in order of interest
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
 
-# Extract RDA scores for samples and biplot arrows
-sites_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
+# Test significance of the overall db-RDA model
+anova_overall <- anova(rda_result, permutations = 999)
+print(anova_overall)
+
+# Test significance of individual predictors
+anova_terms <- anova(rda_result, by = "terms", permutations = 999, model = 'reduced')
+print(anova_terms)
+
+# Extract RDA scores of samples
+samples_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
   rownames_to_column(var = "SampleID")
 
+# Extract biplot arrows and filter for significant predictors
 arrows_df <- as.data.frame(scores(rda_result, display = "bp")) %>%
-  rownames_to_column(var = "labels") %>% 
-  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4)
+  rownames_to_column(var = "labels") %>%
+  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4) %>%        # Scale arrows for better visualization
+  filter(labels %in% c("StationLL_07", "Year2016", "Year2017", "Year2018"))
 
 # Merge metadata with RDA scores
-sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+samples_df <- left_join(samples_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+
+# Add variance explained to axis titles
+rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 
 # RDA plot
-(plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
+(plot <- ggplot(data = samples_df, aes(x = RDA1, y = RDA2)) +
     geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
       aes(x = 0, y = 0, xend = RDA1, yend = RDA2),
       arrow = arrow(length = unit(0.2, "cm")),
-      color = "black"
-    ) +
-    geom_text(
+      color = "black") +
+    geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
-    ) +                                                  # Vector labels
+      size = 5, fill = "white", alpha = 0.7,
+      max.overlaps = Inf,  # Allow dynamic adjustment of all labels
+      box.padding = 0.5) +   # Space around label box
+    labs(                                                        # Axis labels
+      x = paste0("RDA1 (", round(rda_variance[1], 1), "%)"),
+      y = paste0("RDA2 (", round(rda_variance[2], 1), "%)")) +
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
@@ -143,29 +161,22 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-S12_RDA.png",
-  plot = plot, width = 6, height = 6, dpi = 300
+  filename = "outputs/beta/rda/S12_RDA.png",
+  plot = plot, width = 8, height = 8, dpi = 300
 )
 
 
-# Extract RDA eigenvalues
-rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
-pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
-# Combine
-eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
-# Calculate variance proportions
-variance_proportion <- eigenvalues / sum(eigenvalues) * 100
-
+# Extract RDA eigenvalues and calculate proportions of total variance per axis
+variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
 # Create axis labels
 axis_labels <- c(
-  paste0("RDA", seq_along(rda_eigenvalues)), 
-  paste0("PCA", seq_along(pca_eigenvalues))
+  paste0("RDA", seq_along(rda_result$CCA$eig)), 
+  paste0("PCA", seq_along(rda_result$CA$eig))
 )
-
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion
+  Variance = variance_proportions
 ) %>% 
   slice(1:20)
 
@@ -182,11 +193,13 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-S12_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/S12_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
 ###############################################################################
+
+
 
 
 
@@ -237,7 +250,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/ONESF-S16_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/S16_PCA_variance_explained.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
@@ -269,7 +282,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/ONESF-S16_PCA.png",
+  filename = "outputs/beta/pca/S16_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -291,37 +304,53 @@ metadata <- metadata %>%
   as_tibble() %>%
   mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(c(4, 5, 6, 9, 10))                     
+  select(c("Size.Fraction", "Depth", "Season", "Station", "Year"))   # Columns of sample attributes to model (ordered)
 
-# Perform db-RDA
+# Perform db-RDA with predictors of interest, in order of interest
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
 
-# Extract RDA scores for samples and biplot arrows
-sites_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
+# Test significance of the overall db-RDA model
+anova_overall <- anova(rda_result, permutations = 999)
+print(anova_overall)
+
+# Test significance of individual predictors
+anova_terms <- anova(rda_result, by = "terms", permutations = 999, model = 'reduced')
+print(anova_terms)
+
+# Extract RDA scores of samples
+samples_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
   rownames_to_column(var = "SampleID")
 
+# Extract biplot arrows and filter for significant predictors
 arrows_df <- as.data.frame(scores(rda_result, display = "bp")) %>%
-  rownames_to_column(var = "labels") %>% 
-  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4)
+  rownames_to_column(var = "labels") %>%
+  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4) %>%        # Scale arrows for better visualization
+  filter(labels != "StationLL_07")
 
 # Merge metadata with RDA scores
-sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+samples_df <- left_join(samples_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+
+# Add variance explained to axis titles
+rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 
 # RDA plot
-(plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
+(plot <- ggplot(data = samples_df, aes(x = RDA1, y = RDA2)) +
     geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
       aes(x = 0, y = 0, xend = RDA1, yend = RDA2),
       arrow = arrow(length = unit(0.2, "cm")),
-      color = "black"
-    ) +
-    geom_text(
+      color = "black") +
+    geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
-    ) +                                                  # Vector labels
+      size = 5, fill = "white", alpha = 0.7,
+      max.overlaps = Inf,  # Allow dynamic adjustment of all labels
+      box.padding = 0.5) +   # Space around label box
+    labs(                                                        # Axis labels
+      x = paste0("RDA1 (", round(rda_variance[1], 1), "%)"),
+      y = paste0("RDA2 (", round(rda_variance[2], 1), "%)")) +
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
@@ -333,31 +362,25 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-S16_RDA.png",
-  plot = plot, width = 6, height = 6, dpi = 300
+  filename = "outputs/beta/rda/S16_RDA.png",
+  plot = plot, width = 8, height = 8, dpi = 300
 )
 
 
-# Extract RDA eigenvalues
-rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
-pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
-# Combine
-eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
-# Calculate variance proportions
-variance_proportion <- eigenvalues / sum(eigenvalues) * 100
 
+# Extract RDA eigenvalues and calculate proportions of total variance per axis
+variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
 # Create axis labels
 axis_labels <- c(
-  paste0("RDA", seq_along(rda_eigenvalues)), 
-  paste0("PCA", seq_along(pca_eigenvalues))
+  paste0("RDA", seq_along(rda_result$CCA$eig)), 
+  paste0("PCA", seq_along(rda_result$CA$eig))
 )
-
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion) %>% 
+  Variance = variance_proportions
+) %>% 
   slice(1:20)
-
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
     geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
@@ -371,7 +394,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-S16_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/S16_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
@@ -422,7 +445,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/ONESF-S18_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/S18_PCA_variance_explained.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
@@ -454,7 +477,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/ONESF-S18_PCA.png",
+  filename = "outputs/beta/pca/S18_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -476,37 +499,53 @@ metadata <- metadata %>%
   as_tibble() %>%
   mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(4, 5, 6, 9, 10)                                          # Adjust to include only relevant columns
+  select(c("Size.Fraction", "Depth", "Season", "Station", "Year"))   # Columns of sample attributes to model (ordered)
 
-# Perform db-RDA
+# Perform db-RDA with predictors of interest, in order of interest
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
 
-# Extract RDA scores for samples and biplot arrows
-sites_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
+# Test significance of the overall db-RDA model
+anova_overall <- anova(rda_result, permutations = 999)
+print(anova_overall)
+
+# Test significance of individual predictors
+anova_terms <- anova(rda_result, by = "terms", permutations = 999, model = 'reduced')
+print(anova_terms)
+
+# Extract RDA scores of samples
+samples_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
   rownames_to_column(var = "SampleID")
 
+# Extract biplot arrows and filter for significant predictors
 arrows_df <- as.data.frame(scores(rda_result, display = "bp")) %>%
-  rownames_to_column(var = "labels") %>% 
-  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4)
+  rownames_to_column(var = "labels") %>%
+  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4) %>%        # Scale arrows for better visualization
+  filter(labels != "StationLL07")
 
 # Merge metadata with RDA scores
-sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+samples_df <- left_join(samples_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+
+# Add variance explained to axis titles
+rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 
 # RDA plot
-(plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
+(plot <- ggplot(data = samples_df, aes(x = RDA1, y = RDA2)) +
     geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
       aes(x = 0, y = 0, xend = RDA1, yend = RDA2),
       arrow = arrow(length = unit(0.2, "cm")),
-      color = "black"
-    ) +
-    geom_text(
+      color = "black") +
+    geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
-    ) +                                                  # Vector labels
+      size = 5, fill = "white", alpha = 0.7,
+      max.overlaps = Inf,  # Allow dynamic adjustment of all labels
+      box.padding = 0.5) +   # Space around label box
+    labs(                                                        # Axis labels
+      x = paste0("RDA1 (", round(rda_variance[1], 1), "%)"),
+      y = paste0("RDA2 (", round(rda_variance[2], 1), "%)")) +
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
@@ -518,29 +557,23 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-S18_RDA.png",
-  plot = plot, width = 6, height = 6, dpi = 300
+  filename = "outputs/beta/rda/S18_RDA.png",
+  plot = plot, width = 8, height = 8, dpi = 300
 )
 
 
-# Extract RDA eigenvalues
-rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
-pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
-# Combine
-eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
-# Calculate variance proportions
-variance_proportion <- eigenvalues / sum(eigenvalues) * 100
-
+# Extract RDA eigenvalues and calculate proportions of total variance per axis
+variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
 # Create axis labels
 axis_labels <- c(
-  paste0("RDA", seq_along(rda_eigenvalues)), 
-  paste0("PCA", seq_along(pca_eigenvalues))
+  paste0("RDA", seq_along(rda_result$CCA$eig)), 
+  paste0("PCA", seq_along(rda_result$CA$eig))
 )
-
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion) %>% 
+  Variance = variance_proportions
+) %>% 
   slice(1:20)
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
@@ -555,7 +588,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-S18_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/S18_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 ###############################################################################
@@ -603,7 +636,7 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/pca/ONESF-COI_PCA_variance_explained.png",
+  filename = "outputs/beta/pca/COI_PCA_variance_explained.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
@@ -635,7 +668,7 @@ pca_plot_data <- left_join(sample_scores, metadata, by = "SampleID")
 
 # Save
 ggsave(
-  filename = "outputs/beta/pca/ONESF-COI_PCA.png",
+  filename = "outputs/beta/pca/COI_PCA.png",
   plot = plot, width = 6, height = 6, dpi = 300
 )
 
@@ -658,37 +691,53 @@ metadata <- metadata %>%
   as_tibble() %>%
   mutate(across(c(5, 6, 7, 10, 11), as.factor)) %>%         # Convert selected columns to factors
   column_to_rownames(var = "SampleID") %>%
-  select(4, 5, 6, 9, 10)                                          # Adjust to include only relevant columns
+  select(c("Size.Fraction", "Depth", "Season", "Station", "Year"))   # Columns of sample attributes to model (ordered)
 
-# Perform db-RDA
+# Perform db-RDA with predictors of interest, in order of interest
 rda_result <- rda(t(otu_clr) ~ ., data = metadata)
 
-# Extract RDA scores for samples and biplot arrows
-sites_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
+# Test significance of the overall db-RDA model
+anova_overall <- anova(rda_result, permutations = 999)
+print(anova_overall)
+
+# Test significance of individual predictors
+anova_terms <- anova(rda_result, by = "terms", permutations = 999, model = 'reduced')
+print(anova_terms)
+
+# Extract RDA scores of samples
+samples_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
   rownames_to_column(var = "SampleID")
 
+# Extract biplot arrows and filter for significant predictors
 arrows_df <- as.data.frame(scores(rda_result, display = "bp")) %>%
-  rownames_to_column(var = "labels") %>% 
-  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4)
+  rownames_to_column(var = "labels") %>%
+  mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4) %>%        # Scale arrows for better visualization
+  filter(labels != "StationLL_07")
 
 # Merge metadata with RDA scores
-sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+samples_df <- left_join(samples_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
+
+# Add variance explained to axis titles
+rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 
 # RDA plot
-(plot <- ggplot(data = sites_df, aes(x = RDA1, y = RDA2)) +
+(plot <- ggplot(data = samples_df, aes(x = RDA1, y = RDA2)) +
     geom_point(aes(color = Season, shape = Size.Fraction), size = 4, alpha = 0.8) +  
     # Add segments for metadata arrows
     geom_segment(
       data = arrows_df, 
       aes(x = 0, y = 0, xend = RDA1, yend = RDA2),
       arrow = arrow(length = unit(0.2, "cm")),
-      color = "black"
-    ) +
-    geom_text(
+      color = "black") +
+    geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, hjust = 1.2, vjust = 1.2, color = "black"
-    ) +                                                  # Vector labels
+      size = 5, fill = "white", alpha = 0.7,
+      max.overlaps = Inf,  # Allow dynamic adjustment of all labels
+      box.padding = 0.5) +   # Space around label box
+    labs(                                                        # Axis labels
+      x = paste0("RDA1 (", round(rda_variance[1], 1), "%)"),
+      y = paste0("RDA2 (", round(rda_variance[2], 1), "%)")) +
     scale_shape_manual(values = c(16, 9)) +
     scale_color_manual(values = c("#440154FF", "#21908CFF")) +
     theme(
@@ -700,31 +749,24 @@ sites_df <- left_join(sites_df, rownames_to_column(metadata, var = "SampleID"), 
 
 # Save the RDA plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-COI_RDA.png",
-  plot = plot, width = 6, height = 6, dpi = 300
+  filename = "outputs/beta/rda/COI_RDA.png",
+  plot = plot, width = 8, height = 8, dpi = 300
 )
 
 
-# Extract RDA eigenvalues
-rda_eigenvalues <- rda_result$CCA$eig  # Eigenvalues for RDA axes
-pca_eigenvalues <- rda_result$CA$eig  # Eigenvalues for PCA residual axes
-# Combine
-eigenvalues <- c(rda_eigenvalues, pca_eigenvalues)
-# Calculate variance proportions
-variance_proportion <- eigenvalues / sum(eigenvalues) * 100
-
+# Extract RDA eigenvalues and calculate proportions of total variance per axis
+variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
 # Create axis labels
 axis_labels <- c(
-  paste0("RDA", seq_along(rda_eigenvalues)), 
-  paste0("PCA", seq_along(pca_eigenvalues))
+  paste0("RDA", seq_along(rda_result$CCA$eig)), 
+  paste0("PCA", seq_along(rda_result$CA$eig))
 )
-
 # Create a data frame for plotting
 variance_df <- data.frame(
   Axis = factor(axis_labels, levels = axis_labels),  # Ensure correct order
-  Variance = variance_proportion) %>% 
+  Variance = variance_proportions
+) %>% 
   slice(1:20)
-
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
     geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
@@ -738,6 +780,6 @@ variance_df <- data.frame(
 
 # Save the plot
 ggsave(
-  filename = "outputs/beta/rda/ONESF-COI_RDA_PCA_variance_explained_ordered.png",
+  filename = "outputs/beta/rda/COI_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
