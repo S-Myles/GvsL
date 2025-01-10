@@ -5,6 +5,9 @@ library(microbiome)   # Contains CLR data transformation
 library(ggthemes)
 library(ggrepel)
 library(vegan)
+library(pheatmap)
+library(RColorBrewer)
+
 
 # Global plot theme setting
 theme_set(theme_bw())
@@ -144,7 +147,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
     geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, fill = "white", alpha = 0.7,
+      size = 6, fill = "white", alpha = 0.7,
       max.overlaps = Inf,  # Allow dynamic adjustment of all labels
       box.padding = 0.5) +   # Space around label box
     labs(                                                        # Axis labels
@@ -162,7 +165,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 # Save the RDA plot
 ggsave(
   filename = "outputs/beta/rda/S12_RDA.png",
-  plot = plot, width = 8, height = 8, dpi = 300
+  plot = plot, width = 6, height = 6, dpi = 300
 )
 
 
@@ -182,19 +185,96 @@ variance_df <- data.frame(
 
 
 (variance_plot <- ggplot(variance_df, aes(x = Axis, y = Variance)) +
-  geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
-  labs(x = "Axes", y = "Variance Explained (%)") +
-  theme_minimal() +
-  theme(axis.title.x = element_text(size = 16, face = "bold"),
-    axis.title.y = element_text(size = 16, face = "bold"),
-    axis.text.x = element_text(size = 16, face = "bold", angle = 45, hjust = 1),
-    axis.text.y = element_text(size = 16, face = "bold")
-  ))
+    geom_bar(stat = "identity", fill = "#0072B2", alpha = 0.7) +
+    labs(x = "Axes", y = "Variance Explained (%)") +
+    theme_minimal() +
+    theme(axis.title.x = element_text(size = 16, face = "bold"),
+          axis.title.y = element_text(size = 16, face = "bold"),
+          axis.text.x = element_text(size = 16, face = "bold", angle = 45, hjust = 1),
+          axis.text.y = element_text(size = 16, face = "bold")
+    ))
 
 # Save the plot
 ggsave(
   filename = "outputs/beta/rda/S12_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
+)
+
+
+#######
+# 12S
+# -------------- db-RDA based Indicator Species Heatmap
+#######
+
+# Extract ASV scores for constrained axes
+asv_scores <- as.matrix(scores(rda_result, display = "species", choices = 1:7))
+attributes_scores <- as.matrix(scores(rda_result, display = "bp", choices = 1:7))
+
+# Dot product to project ASVs onto sample attribute space
+filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "ASV_ID") %>% 
+  select(c("ASV_ID", "StationLL_07", "Year2016", "Year2017", "Year2018")) %>% # Selecting only significant Attributes from permanova
+  filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
+  column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+
+
+# Extract taxonomy table from phyloseq object
+taxonomy_table <- as.data.frame(tax_table(S12_CLR))
+
+# Create taxonomy column based on the best available rank
+taxonomy_table$Taxonomy <- if_else(
+  !is.na(taxonomy_table$Species) & taxonomy_table$Species != "",
+  taxonomy_table$Species,  # Use Species if available
+  if_else(
+    !is.na(taxonomy_table$Genus) & taxonomy_table$Genus != "",
+    paste(taxonomy_table$Genus, "sp.", sep = " "),  # Use Genus with " sp."
+    if_else(
+      !is.na(taxonomy_table$Family) & taxonomy_table$Family != "",
+      paste("Family_", taxonomy_table$Family, sep = ""),  # Use Family with "Family_" prefix
+      if_else(
+        !is.na(taxonomy_table$Order) & taxonomy_table$Order != "",
+        paste("Order_", taxonomy_table$Order, sep = ""),  # Use Order with "Order_" prefix
+        if_else(
+          !is.na(taxonomy_table$Class) & taxonomy_table$Class != "",
+          paste("Class_", taxonomy_table$Class, sep = ""),  # Use Class with "Class_" prefix
+          NA_character_  # Default to NA if no rank is available
+        )
+      )
+    )
+  )
+)
+
+# Make ASV IDs the rownames for joining
+taxonomy_table <- taxonomy_table %>%rownames_to_column(var = "ASV_ID")
+
+# Add taxonomy to the filtered ASV associations
+filt_asv_attribute_associations <- filt_asv_attribute_associations %>%
+  rownames_to_column(var = "ASV_ID") %>%        # Temporarily move ASV IDs to a column
+  left_join(taxonomy_table, by = "ASV_ID") %>%  # Join with taxonomy
+  select(Taxonomy, StationLL_07, Year2016, Year2017, Year2018)
+
+# Ensure unique taxonomy names
+filt_asv_attribute_associations$Taxonomy <- make.unique(filt_asv_attribute_associations$Taxonomy)
+
+filt_asv_attribute_associations <- column_to_rownames(filt_asv_attribute_associations, var = "Taxonomy")
+
+
+# Save the heatmap directly using the `filename` argument
+pheatmap(
+  mat = filt_asv_attribute_associations,           # Filtered matrix of ASV-attribute associations
+  cluster_rows = TRUE,                             # Cluster ASVs (rows)
+  cluster_cols = FALSE,                            # Cluster attributes (columns)
+  scale = "none",                                  # No scaling applied (retain original values)
+  color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
+  breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
+  fontsize_row = 14,                               # Font size for ASV labels
+  fontsize_col = 16,                               # Font size for attribute labels
+  fontsize = 14,                                   # General font size
+  filename = "outputs/beta/rda/S12-heatmap_asv_attribute_associations.png", # Save directly
+  width = 10,                                      # Width of the output file (inches)
+  height = 8,                                      # Height of the output file (inches)
+  dpi = 300                                        # Resolution
 )
 
 ###############################################################################
@@ -345,7 +425,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
     geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, fill = "white", alpha = 0.7,
+      size = 6, fill = "white", alpha = 0.7,
       max.overlaps = Inf,  # Allow dynamic adjustment of all labels
       box.padding = 0.5) +   # Space around label box
     labs(                                                        # Axis labels
@@ -363,7 +443,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 # Save the RDA plot
 ggsave(
   filename = "outputs/beta/rda/S16_RDA.png",
-  plot = plot, width = 8, height = 8, dpi = 300
+  plot = plot, width = 6, height = 6, dpi = 300
 )
 
 
@@ -398,6 +478,83 @@ ggsave(
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
 
+
+
+#######
+# 16S
+# -------------- db-RDA based Indicator Species Heatmap
+#######
+
+# Extract ASV scores for constrained axes
+asv_scores <- as.matrix(scores(rda_result, display = "species", choices = 1:7))
+attributes_scores <- as.matrix(scores(rda_result, display = "bp", choices = 1:7))
+
+# Dot product to project ASVs onto sample attribute space
+filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "ASV_ID") %>% 
+  select(!"StationLL_07") %>% # Selecting only significant Attributes from permanova
+  filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
+  column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+
+
+# Extract taxonomy table from phyloseq object
+taxonomy_table <- as.data.frame(tax_table(S16_CLR))
+
+# Create taxonomy column based on the best available rank
+taxonomy_table$Taxonomy <- if_else(
+  !is.na(taxonomy_table$Species) & taxonomy_table$Species != "",
+  taxonomy_table$Species,  # Use Species if available
+  if_else(
+    !is.na(taxonomy_table$Genus) & taxonomy_table$Genus != "",
+    paste(taxonomy_table$Genus, "sp.", sep = " "),  # Use Genus with " sp."
+    if_else(
+      !is.na(taxonomy_table$Family) & taxonomy_table$Family != "",
+      paste("Family_", taxonomy_table$Family, sep = ""),  # Use Family with "Family_" prefix
+      if_else(
+        !is.na(taxonomy_table$Order) & taxonomy_table$Order != "",
+        paste("Order_", taxonomy_table$Order, sep = ""),  # Use Order with "Order_" prefix
+        if_else(
+          !is.na(taxonomy_table$Class) & taxonomy_table$Class != "",
+          paste("Class_", taxonomy_table$Class, sep = ""),  # Use Class with "Class_" prefix
+          NA_character_  # Default to NA if no rank is available
+        )
+      )
+    )
+  )
+)
+
+# Make ASV IDs the rownames for joining
+taxonomy_table <- taxonomy_table %>%rownames_to_column(var = "ASV_ID")
+
+# Add taxonomy to the filtered ASV associations
+filt_asv_attribute_associations <- filt_asv_attribute_associations %>%
+  rownames_to_column(var = "ASV_ID") %>%        # Temporarily move ASV IDs to a column
+  left_join(taxonomy_table, by = "ASV_ID") %>%  # Join with taxonomy
+  select(-ASV_ID, -Domain, - Phylum, -Class, -Order, -Family, -Genus, -Species)
+
+# Ensure unique taxonomy names
+filt_asv_attribute_associations$Taxonomy <- make.unique(filt_asv_attribute_associations$Taxonomy)
+
+filt_asv_attribute_associations <- column_to_rownames(filt_asv_attribute_associations, var = "Taxonomy")
+
+
+# Save the heatmap directly using the `filename` argument
+pheatmap(
+  mat = filt_asv_attribute_associations,           # Filtered matrix of ASV-attribute associations
+  cluster_rows = TRUE,                             # Cluster ASVs (rows)
+  cluster_cols = FALSE,                            # Cluster attributes (columns)
+  scale = "none",                                  # No scaling applied (retain original values)
+  color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
+  breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
+  fontsize_row = 14,                               # Font size for ASV labels
+  fontsize_col = 16,                               # Font size for attribute labels
+  fontsize = 14,                                   # General font size
+  filename = "outputs/beta/rda/S16-heatmap_asv_attribute_associations.png", # Save directly
+  width = 10,                                      # Width of the output file (inches)
+  height = 14,                                      # Height of the output file (inches)
+  dpi = 300                                        # Resolution
+)
 ###############################################################################
 
 
@@ -540,7 +697,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
     geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, fill = "white", alpha = 0.7,
+      size = 6, fill = "white", alpha = 0.7,
       max.overlaps = Inf,  # Allow dynamic adjustment of all labels
       box.padding = 0.5) +   # Space around label box
     labs(                                                        # Axis labels
@@ -558,7 +715,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 # Save the RDA plot
 ggsave(
   filename = "outputs/beta/rda/S18_RDA.png",
-  plot = plot, width = 8, height = 8, dpi = 300
+  plot = plot, width = 6, height = 6, dpi = 300
 )
 
 
@@ -590,6 +747,84 @@ variance_df <- data.frame(
 ggsave(
   filename = "outputs/beta/rda/S18_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
+)
+
+
+
+#######
+# 18S
+# -------------- db-RDA based Indicator Species Heatmap
+#######
+
+# Extract ASV scores for constrained axes
+asv_scores <- as.matrix(scores(rda_result, display = "species", choices = 1:7))
+attributes_scores <- as.matrix(scores(rda_result, display = "bp", choices = 1:7))
+
+# Dot product to project ASVs onto sample attribute space
+filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "ASV_ID") %>% 
+  select(!"StationLL_07") %>% # Selecting only significant Attributes from permanova
+  filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
+  column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+
+
+# Extract taxonomy table from phyloseq object
+taxonomy_table <- as.data.frame(tax_table(S18_CLR))
+
+# Create taxonomy column based on the best available rank
+taxonomy_table$Taxonomy <- if_else(
+  !is.na(taxonomy_table$Species) & taxonomy_table$Species != "",
+  taxonomy_table$Species,  # Use Species if available
+  if_else(
+    !is.na(taxonomy_table$Genus) & taxonomy_table$Genus != "",
+    paste(taxonomy_table$Genus, "sp.", sep = " "),  # Use Genus with " sp."
+    if_else(
+      !is.na(taxonomy_table$Family) & taxonomy_table$Family != "",
+      paste("Family_", taxonomy_table$Family, sep = ""),  # Use Family with "Family_" prefix
+      if_else(
+        !is.na(taxonomy_table$Order) & taxonomy_table$Order != "",
+        paste("Order_", taxonomy_table$Order, sep = ""),  # Use Order with "Order_" prefix
+        if_else(
+          !is.na(taxonomy_table$Class) & taxonomy_table$Class != "",
+          paste("Class_", taxonomy_table$Class, sep = ""),  # Use Class with "Class_" prefix
+          NA_character_  # Default to NA if no rank is available
+        )
+      )
+    )
+  )
+)
+
+# Make ASV IDs the rownames for joining
+taxonomy_table <- taxonomy_table %>%rownames_to_column(var = "ASV_ID")
+
+# Add taxonomy to the filtered ASV associations
+filt_asv_attribute_associations <- filt_asv_attribute_associations %>%
+  rownames_to_column(var = "ASV_ID") %>%        # Temporarily move ASV IDs to a column
+  left_join(taxonomy_table, by = "ASV_ID") %>%  # Join with taxonomy
+  select(-ASV_ID, -Domain, - Phylum, -Class, -Order, -Family, -Genus, -Species)
+
+# Ensure unique taxonomy names
+filt_asv_attribute_associations$Taxonomy <- make.unique(filt_asv_attribute_associations$Taxonomy)
+
+filt_asv_attribute_associations <- column_to_rownames(filt_asv_attribute_associations, var = "Taxonomy")
+
+
+# Save the heatmap directly using the `filename` argument
+pheatmap(
+  mat = filt_asv_attribute_associations,           # Filtered matrix of ASV-attribute associations
+  cluster_rows = TRUE,                             # Cluster ASVs (rows)
+  cluster_cols = FALSE,                            # Cluster attributes (columns)
+  scale = "none",                                  # No scaling applied (retain original values)
+  color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
+  breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
+  fontsize_row = 14,                               # Font size for ASV labels
+  fontsize_col = 16,                               # Font size for attribute labels
+  fontsize = 14,                                   # General font size
+  filename = "outputs/beta/rda/S18-heatmap_asv_attribute_associations.png", # Save directly
+  width = 10,                                      # Width of the output file (inches)
+  height = 10,                                      # Height of the output file (inches)
+  dpi = 300                                        # Resolution
 )
 ###############################################################################
 
@@ -732,7 +967,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
     geom_label_repel(
       data = arrows_df, 
       aes(x = RDA1, y = RDA2, label = labels),
-      size = 5, fill = "white", alpha = 0.7,
+      size = 6, fill = "white", alpha = 0.7,
       max.overlaps = Inf,  # Allow dynamic adjustment of all labels
       box.padding = 0.5) +   # Space around label box
     labs(                                                        # Axis labels
@@ -750,7 +985,7 @@ rda_variance <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
 # Save the RDA plot
 ggsave(
   filename = "outputs/beta/rda/COI_RDA.png",
-  plot = plot, width = 8, height = 8, dpi = 300
+  plot = plot, width = 6, height = 6, dpi = 300
 )
 
 
@@ -783,3 +1018,91 @@ ggsave(
   filename = "outputs/beta/rda/COI_RDA_PCA_variance_explained_ordered.png",
   plot = variance_plot, width = 6, height = 3.5, dpi = 300
 )
+
+
+
+#######
+# COI
+# -------------- db-RDA based Indicator Species Heatmap
+#######
+
+# Extract ASV scores for constrained axes
+asv_scores <- as.matrix(scores(rda_result, display = "species", choices = 1:7))
+attributes_scores <- as.matrix(scores(rda_result, display = "bp", choices = 1:7))
+
+# Dot product to project ASVs onto sample attribute space
+filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>% 
+  as.data.frame() %>% 
+  rownames_to_column(var = "ASV_ID") %>% 
+  select(!"StationLL_07") %>% # Selecting only significant Attributes from permanova
+  filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
+  column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+
+
+# Extract taxonomy table from phyloseq object
+taxonomy_table <- as.data.frame(tax_table(COI_CLR))
+
+# Create taxonomy column based on the best available rank
+taxonomy_table$Taxonomy <- if_else(
+  !is.na(taxonomy_table$Species) & taxonomy_table$Species != "",
+  taxonomy_table$Species,  # Use Species if available
+  if_else(
+    !is.na(taxonomy_table$Genus) & taxonomy_table$Genus != "",
+    paste(taxonomy_table$Genus, "sp.", sep = " "),  # Use Genus with " sp."
+    if_else(
+      !is.na(taxonomy_table$Family) & taxonomy_table$Family != "",
+      paste("Family_", taxonomy_table$Family, sep = ""),  # Use Family with "Family_" prefix
+      if_else(
+        !is.na(taxonomy_table$Order) & taxonomy_table$Order != "",
+        paste("Order_", taxonomy_table$Order, sep = ""),  # Use Order with "Order_" prefix
+        if_else(
+          !is.na(taxonomy_table$Class) & taxonomy_table$Class != "",
+          paste("Class_", taxonomy_table$Class, sep = ""),  # Use Class with "Class_" prefix
+          NA_character_  # Default to NA if no rank is available
+        )
+      )
+    )
+  )
+)
+
+# Make ASV IDs the rownames for joining
+taxonomy_table <- taxonomy_table %>% rownames_to_column(var = "ASV_ID")
+
+# Add taxonomy to the filtered ASV associations
+filt_asv_attribute_associations <- filt_asv_attribute_associations %>%
+  rownames_to_column(var = "ASV_ID") %>%        # Temporarily move ASV IDs to a column
+  left_join(taxonomy_table, by = "ASV_ID") %>%  # Join with taxonomy
+  select(-ASV_ID, -Superkingdom, - Phylum, -Class, -Order, -Family, -Genus, -Species, -Confidence, -Selected_Prefix)
+
+# Ensure unique taxonomy names
+filt_asv_attribute_associations$Taxonomy <- make.unique(filt_asv_attribute_associations$Taxonomy)
+
+filt_asv_attribute_associations <- column_to_rownames(filt_asv_attribute_associations, var = "Taxonomy")
+
+
+# Save the heatmap directly using the `filename` argument
+pheatmap(
+  mat = filt_asv_attribute_associations,           # Filtered matrix of ASV-attribute associations
+  cluster_rows = TRUE,                             # Cluster ASVs (rows)
+  cluster_cols = FALSE,                            # Cluster attributes (columns)
+  scale = "none",                                  # No scaling applied (retain original values)
+  color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
+  breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
+  fontsize_row = 14,                               # Font size for ASV labels
+  fontsize_col = 16,                               # Font size for attribute labels
+  fontsize = 14,                                   # General font size
+  filename = "outputs/beta/rda/COI-heatmap_asv_attribute_associations.png", # Save directly
+  width = 10,                                      # Width of the output file (inches)
+  height = 14,                                      # Height of the output file (inches)
+  dpi = 300                                        # Resolution
+)
+
+
+
+# Optional Cleanup
+rm(anova_overall, anova_terms, arrows_df, asv_attribute_associations, asv_scores, attributes_scores, 
+   filt_asv_attribute_associations,filtered_asvs, otu_clr, otu_clr_t, pca_plot_data, plot, ps_melted,
+   rda_result, sample_scores, samples_df, sites_df, taxonomy_table, variance_df, variance_plot,
+   axis_labels, eigenvalues, explained_variance, pca_eigenvalues, rda_eigenvalues, rda_variance,
+   threshold, variance_proportion, variance_proportions, custom_labeller,
+   COI_CLR, COI_PCA, S12_CLR, S12_PCA, S16_CLR, S16_PCA, S18_CLR, S18_PCA)
