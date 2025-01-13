@@ -268,9 +268,9 @@ pheatmap(
   scale = "none",                                  # No scaling applied (retain original values)
   color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
   breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
-  fontsize_row = 14,                               # Font size for ASV labels
-  fontsize_col = 16,                               # Font size for attribute labels
-  fontsize = 14,                                   # General font size
+  fontsize_row = 20,                               # Font size for ASV labels
+  fontsize_col = 20,                               # Font size for attribute labels
+  fontsize = 20,                                   # General font size
   filename = "outputs/beta/rda/ONESF-S12-heatmap_asv_attribute_associations.png", # Save directly
   width = 10,                                      # Width of the output file (inches)
   height = 8,                                      # Height of the output file (inches)
@@ -547,9 +547,9 @@ pheatmap(
   scale = "none",                                  # No scaling applied (retain original values)
   color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
   breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
-  fontsize_row = 14,                               # Font size for ASV labels
-  fontsize_col = 16,                               # Font size for attribute labels
-  fontsize = 14,                                   # General font size
+  fontsize_row = 20,                               # Font size for ASV labels
+  fontsize_col = 20,                               # Font size for attribute labels
+  fontsize = 20,                                   # General font size
   filename = "outputs/beta/rda/ONESF-S16-heatmap_asv_attribute_associations.png", # Save directly
   width = 10,                                      # Width of the output file (inches)
   height = 14,                                      # Height of the output file (inches)
@@ -818,9 +818,9 @@ pheatmap(
   scale = "none",                                  # No scaling applied (retain original values)
   color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
   breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
-  fontsize_row = 14,                               # Font size for ASV labels
-  fontsize_col = 16,                               # Font size for attribute labels
-  fontsize = 14,                                   # General font size
+  fontsize_row = 20,                               # Font size for ASV labels
+  fontsize_col = 20,                               # Font size for attribute labels
+  fontsize = 20,                                   # General font size
   filename = "outputs/beta/rda/ONESF-S18-heatmap_asv_attribute_associations.png", # Save directly
   width = 10,                                      # Width of the output file (inches)
   height = 10,                                      # Height of the output file (inches)
@@ -1088,9 +1088,9 @@ pheatmap(
   scale = "none",                                  # No scaling applied (retain original values)
   color = colorRampPalette(brewer.pal(9, "RdBu"))(50),  # Red-Blue palette for associations
   breaks = seq(-1, 1, length.out = 51),            # Ensure symmetrical color scale
-  fontsize_row = 14,                               # Font size for ASV labels
-  fontsize_col = 16,                               # Font size for attribute labels
-  fontsize = 14,                                   # General font size
+  fontsize_row = 20,                               # Font size for ASV labels
+  fontsize_col = 20,                               # Font size for attribute labels
+  fontsize = 20,                                   # General font size
   filename = "outputs/beta/rda/ONESF-COI-heatmap_asv_attribute_associations.png", # Save directly
   width = 10,                                      # Width of the output file (inches)
   height = 14,                                      # Height of the output file (inches)
