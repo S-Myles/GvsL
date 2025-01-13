@@ -15,7 +15,7 @@ library(tidyverse)
 # So for 
 # 12S : none (only year significant with 1 size fraction, station when all samples present)
 # 16S : Depth & Season
-# 18S : Depth & Season & Station
+# 18S : Depth & Season 
 # COI : Depth & Season 
 
 
@@ -91,8 +91,6 @@ metadata <-  read_tsv("./data/metadata.txt")
 metadata <- merge(S18_df, metadata, "sampleid") # Merge by sampleid
 
 # Create sample attribute binary vectors from metadata
-S18_y_station <- metadata[,"Station"] %>% 
-  as.factor()
 S18_y_season <- metadata[,"Season"] %>% 
   as.factor()
 S18_y_depth <- ifelse(metadata[,"Depth"] %in% c(1, 20), "photic", "aphotic") %>% 
@@ -102,10 +100,6 @@ S18_y_depth <- ifelse(metadata[,"Depth"] %in% c(1, 20), "photic", "aphotic") %>%
 S18_df <- column_to_rownames(S18_df, var = "sampleid")
 
 
-
-# Indicator species analysis for Station
-ind_station <- multipatt(S18_df, S18_y_station, control = how(nperm = 999))
-summary(ind_station)
 
 # Indicator species analysis for Season
 ind_season <- multipatt(S18_df, S18_y_season, control = how(nperm = 999))
@@ -118,7 +112,6 @@ summary(ind_depth)
 
 
 # Extract 18S Results to dataframes
-indicsp_18S_station <- extract_multipatt_results(ind_station, "18S", "Station")
 indicsp_18S_season <- extract_multipatt_results(ind_season, "18S", "Season")
 indicsp_18S_depth <- extract_multipatt_results(ind_depth, "18S", "Depth")
 

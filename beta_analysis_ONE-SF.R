@@ -217,7 +217,7 @@ filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>%
   select(c("ASV_ID", "Year2016", "Year2017", "Year2018")) %>% # Selecting only significant Attributes from permanova
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
   column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
-
+rda_12S_ASVs <- filt_asv_attribute_associations
 
 # Extract taxonomy table from phyloseq object
 taxonomy_table <- as.data.frame(tax_table(S12_CLR))
@@ -496,6 +496,7 @@ filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>%
   select(-StationLL_07) %>% # Selecting only significant Attributes from permanova
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
   column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+rda_16S_ASVs <- filt_asv_attribute_associations
 
 
 # Extract taxonomy table from phyloseq object
@@ -677,7 +678,7 @@ samples_df <- as.data.frame(scores(rda_result, display = "sites")) %>%
 arrows_df <- as.data.frame(scores(rda_result, display = "bp")) %>%
   rownames_to_column(var = "labels") %>%
   mutate(RDA1 = RDA1 * 4, RDA2 = RDA2 * 4) %>%        # Scale arrows for better visualization
-  filter(labels != "StationLL07")
+  filter(labels != "StationLL_07")
 
 # Merge metadata with RDA scores
 samples_df <- left_join(samples_df, rownames_to_column(metadata, var = "SampleID"), by = "SampleID")
@@ -767,6 +768,7 @@ filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>%
   select(!"StationLL_07") %>% # Selecting only significant Attributes from permanova
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
   column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+rda_18S_ASVs <- filt_asv_attribute_associations
 
 
 # Extract taxonomy table from phyloseq object
@@ -1037,6 +1039,7 @@ filt_asv_attribute_associations <- asv_scores %*% t(attributes_scores) %>%
   select(!"StationLL_07") %>% # Selecting only significant Attributes from permanova
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Apply condition only to numeric columns
   column_to_rownames(var = "ASV_ID")  # Restore ASV IDs as row name
+rda_COI_ASVs <- filt_asv_attribute_associations
 
 
 # Extract taxonomy table from phyloseq object
