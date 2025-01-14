@@ -1,4 +1,4 @@
-.gitignore
+.gitignore.txt
 .Rproj.user
 .Rhistory
 .RData
@@ -7,4 +7,4 @@
 coda4microbiome
 outputs
 input_objects.RData
-output.txt
+output.log
