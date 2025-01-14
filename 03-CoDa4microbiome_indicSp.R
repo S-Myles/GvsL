@@ -3,6 +3,9 @@ library(phyloseq)
 library(coda4microbiome)
 library(tidyverse)
 
+load("input_objects.RData")
+#load("results.RData")
+
 # These indicator psecies analyses are to be done only on 1 size-fraction datasets because
 # RDAs showed fundametal impact on the data. 
 
@@ -22,10 +25,8 @@ library(tidyverse)
 
 
 ####
-# Data Prep
+# Data Prep ------------  16S
 ####
-
-# ------------   16S
 S16_df <- otu_table(S16_filt_data) %>% 
   t() %>% 
   as.data.frame() %>% 
@@ -53,8 +54,10 @@ S16_df <- column_to_rownames(S16_df, var = "sampleid")
 # This cutoff value is decided based on the lambda argument (default is 1 standard dev)
 
 # 16S
-S16_coda_glmnet_seasonal<-coda_glmnet(x=S16_df,y=S16_y_season, nfolds = 3)
+#S16_coda_glmnet_seasonal<-coda_glmnet(x=S16_df,y=S16_y_season, nfolds = 3)
+#save.image("results.RData")
 S16_coda_glmnet_depth<-coda_glmnet(x=S16_df,y=S16_y_depth, nfolds = 3)
+save.image("results.RData")
 
 
 
@@ -100,24 +103,20 @@ S16_coda_glmnet_seasonal$`predictions plot`
 
 # PERMUTATIONAL TEST OF SIGNIFICANCE
 # Performs permutational cross-validation tests to evaluate the model ito the null (y permuted)
-S16_coda_PERM_glmnet_seasonal<-coda_glmnet_null(x=S16_df, y=S16_y_season, niter=10) # for final evaluation, increase niter!
+#S16_coda_PERM_glmnet_seasonal<-coda_glmnet_null(x=S16_df, y=S16_y_season, niter=10) # for final evaluation, increase niter!
 
 # 
-summary(S16_coda_PERM_glmnet_seasonal$"accuracy")
-S16_coda_PERM_glmnet_seasonal$"confidence interval"
-
-
-
+#summary(S16_coda_PERM_glmnet_seasonal$"accuracy")
+#S16_coda_PERM_glmnet_seasonal$"confidence interval"
 
 
 
 
 
 ####
-# Data Prep
+# Data Prep ------------   18S
 ####
 
-# ------------   18S
 S18_df <- otu_table(S18_filt_data) %>% 
   t() %>% 
   as.data.frame() %>% 
@@ -127,8 +126,6 @@ metadata <- merge(S18_df, metadata, "sampleid") # Merge by sampleid
 
 # Create sample atteibute binary vectors from metadata
 S18_y_season <- metadata[,"Season"] %>% 
-  as.factor()
-S18_y_station <- metadata[,"Station"] %>% 
   as.factor()
 S18_y_depth <- ifelse(metadata[,"Depth"] %in% c(1, 20), "photic", "aphotic") %>% 
   as.factor()
@@ -146,11 +143,11 @@ S18_df <- column_to_rownames(S18_df, var = "sampleid")
 # Dashed verticals show highest AUC score and cutoff selection for dimensionality reduction
 # This cutoff value is decided based on the lambda argument (default is 1 standard dev)
 
-# 16S
+# 18S
 S18_coda_glmnet_seasonal<-coda_glmnet(x=S18_df,y=S18_y_season, nfolds = 3)
-S18_coda_glmnet_station<-coda_glmnet(x=S18_df,y=S18_y_station, nfolds = 3)
+save.image("results.RData")
 S18_coda_glmnet_depth<-coda_glmnet(x=S18_df,y=S18_y_depth, nfolds = 3)
-
+save.image("results.RData")
 
 
 ####
@@ -195,16 +192,11 @@ S18_coda_glmnet_seasonal$`predictions plot`
 
 # PERMUTATIONAL TEST OF SIGNIFICANCE
 # Performs permutational cross-validation tests to evaluate the model ito the null (y permuted)
-S18_coda_PERM_glmnet_seasonal<-coda_glmnet_null(x=S18_df, y=S18_y_season, niter=10) # for final evaluation, increase niter!
+#S18_coda_PERM_glmnet_seasonal<-coda_glmnet_null(x=S18_df, y=S18_y_season, niter=10) # for final evaluation, increase niter!
 
 # 
-summary(S18_coda_PERM_glmnet_seasonal$"accuracy")
-S18_coda_PERM_glmnet_seasonal$"confidence interval"
-
-
-
-
-
+#summary(S18_coda_PERM_glmnet_seasonal$"accuracy")
+#S18_coda_PERM_glmnet_seasonal$"confidence interval"
 
 
 
@@ -212,10 +204,8 @@ S18_coda_PERM_glmnet_seasonal$"confidence interval"
 
 
 ####
-# Data Prep
+# Data Prep ------------  COI
 ####
-
-# ------------   COI
 COI_df <- otu_table(COI_filt_data) %>% 
   t() %>% 
   as.data.frame() %>% 
@@ -229,7 +219,7 @@ COI_y_season <- metadata[,"Season"] %>%
 COI_y_depth <- ifelse(metadata[,"Depth"] %in% c(1, 20), "photic", "aphotic") %>% 
   as.factor()
 
-S16_df <- column_to_rownames(COI_df, var = "sampleid")
+COI_df <- column_to_rownames(COI_df, var = "sampleid")
 
 
 
@@ -242,10 +232,11 @@ S16_df <- column_to_rownames(COI_df, var = "sampleid")
 # Dashed verticals show highest AUC score and cutoff selection for dimensionality reduction
 # This cutoff value is decided based on the lambda argument (default is 1 standard dev)
 
-# 16S
+# COI
 COI_coda_glmnet_seasonal<-coda_glmnet(x=COI_df,y=COI_y_season, nfolds = 3)
+save.image("results.RData")
 COI_coda_glmnet_depth<-coda_glmnet(x=COI_df,y=COI_y_depth, nfolds = 3)
-
+save.image("results.RData")
 
 
 ####
@@ -290,8 +281,11 @@ COI_coda_glmnet_seasonal$`predictions plot`
 
 # PERMUTATIONAL TEST OF SIGNIFICANCE
 # Performs permutational cross-validation tests to evaluate the model ito the null (y permuted)
-COI_coda_glmnet_seasonal<-coda_glmnet_null(x=S16_df, y=S16_y_season, niter=10) # for final evaluation, increase niter!
+#COI_coda_glmnet_seasonal<-coda_glmnet_null(x=COI_df, y=COI_y_season, niter=10) # for final evaluation, increase niter!
 
 # 
-summary(COI_coda_glmnet_seasonal$"accuracy")
-COI_coda_glmnet_seasonal$"confidence interval"
+#summary(COI_coda_glmnet_seasonal$"accuracy")
+#COI_coda_glmnet_seasonal$"confidence interval"
+
+
+save.image("results.RData")
