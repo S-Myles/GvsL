@@ -6,7 +6,7 @@ library(ape)
 ########
 # Add tree to dataset
 physeq <- merge_phyloseq(S12_physeq_data, 
-                         phy_tree(read.tree("data/12S_aligned_masked_tree_rooted.nwk")))
+                         phy_tree(read.tree("data/12S_tree_rooted.nwk")))
 
 # plot tree with qiime classified data
 (p <- plot_tree(physeq, 
@@ -44,7 +44,7 @@ ggsave("outputs/Trees/12S-Species_tree.png",
 ########
 # Add tree to dataset
 physeq <- merge_phyloseq(S16_physeq_data, 
-                         phy_tree(read.tree("data/16S_filt_aligned_masked_tree_rooted.nwk")))
+                         phy_tree(read.tree("data/16S_tree_rooted.nwk")))
 
 # plot tree
 (p <- plot_tree(physeq, 
@@ -82,7 +82,7 @@ ggsave("outputs/Trees/16S-Phylum_tree.png",
 ########
 # Add tree to dataset
 physeq <- merge_phyloseq(S18_physeq_data, 
-                         phy_tree(read.tree("data/18S_filt_aligned_masked_tree_rooted.nwk")))
+                         phy_tree(read.tree("data/18S_tree_rooted.nwk")))
 # plot tree
 (p <- plot_tree(physeq, 
                 color = "Phylum", 
@@ -119,7 +119,7 @@ ggsave("outputs/Trees/18S-Phylum_tree.png",
 ########
 # Add tree to dataset
 physeq <- merge_phyloseq(COI_physeq_data, 
-                         phy_tree(read.tree("data/COI_filt_aligned_masked_tree_rooted.nwk")))
+                         phy_tree(read.tree("data/COI_tree_rooted.nwk")))
 
 # plot tree
 (p <- plot_tree(physeq, 
