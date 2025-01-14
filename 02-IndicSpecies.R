@@ -151,8 +151,8 @@ ind_season <- multipatt(COI_df, COI_y_season, control = how(nperm = 999))
 summary(ind_season)
 
 
-# Indicator species analysis for Depth (continuous)
-ind_depth <- multipatt(COI_df, COI_y_depth, func = "r.g", control = how(nperm = 999))
+# Indicator species analysis for Depth
+ind_depth <- multipatt(COI_df, COI_y_depth, control = how(nperm = 999))
 summary(ind_depth)
 
 

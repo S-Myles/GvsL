@@ -2,6 +2,15 @@
 library(phyloseq)     # Data structure and functions for seq data
 library(tidyverse)    # Data handling and all
 ###############################################################################
+
+# Note that depending on the analysis to follow (scripts with "01-" or "02-") prefixes
+# You will want to generate phyloseq objects only up to a certain point in this processing file.
+# i.e. no abundance filtering for alpha diversity metrics.
+
+# Refer to the paper for description of data for each downstream analysis
+
+
+
 ###########
 # Load 4 markers metabarcoding data and create phyloseq objects
 ###########

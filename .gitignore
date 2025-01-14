@@ -1,3 +1,4 @@
+.gitignore
 .Rproj.user
 .Rhistory
 .RData
@@ -5,3 +6,5 @@
 .Ruserdata
 coda4microbiome
 outputs
+input_objects.RData
+output.txt
