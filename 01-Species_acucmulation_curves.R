@@ -128,14 +128,14 @@ fall_accum_curve <- otu_table(fall) %>%
   specaccum(method = "random")
 
 
-site_accum_data <- rbind(
+season_accum_data <- rbind(
   data.frame(SampleNumber = spring_accum_curve$sites, SpeciesDetected = spring_accum_curve$richness, SD = spring_accum_curve$sd, Group = "Spring"),
   data.frame(SampleNumber = fall_accum_curve$sites, SpeciesDetected = fall_accum_curve$richness, SD = fall_accum_curve$sd, Group = "Fall")
 )
 
 
 # Plot with different line types
-(plot <- ggplot(site_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group, linetype = Group)) +
+(plot <- ggplot(season_accum_data, aes(x = SampleNumber, y = SpeciesDetected, color = Group, linetype = Group)) +
     geom_line(size = 1) +
     geom_ribbon(aes(ymin = SpeciesDetected - SD, ymax = SpeciesDetected + SD, fill = Group), alpha = 0.2, color = NA) +
     scale_linetype_manual(values = c("solid", "dotted")) +  # Line types for stations

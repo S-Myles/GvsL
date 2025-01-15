@@ -48,11 +48,12 @@ taxonomy_table <- taxonomy_table %>% rownames_to_column(var = "ASV")
 merged_16S_depth_ASVs <- rda_16S_ASVs %>%
   select(ASV, Depth20, Depth250) %>%
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # Select 0.7 permanova scores only
-  full_join(indicsp_16S_depth, by = "ASV")
+  full_join(indicsp_16S_depth, by = "ASV") %>% 
+  full_join(S16_depth_results, by = "ASV")
 
 # Add taxonomy
 merged_16S_depth_ASVs <- left_join(merged_16S_depth_ASVs, taxonomy_table, by = "ASV") %>% 
-  select(ASV, Taxonomy, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping)
+  select(ASV, Taxonomy, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping, Coefficient)
 
 write_csv(merged_16S_depth_ASVs, "outputs/indicators/Merged_indicator_ASVS-16S-Depth.csv")
 
@@ -63,11 +64,12 @@ write_csv(merged_16S_depth_ASVs, "outputs/indicators/Merged_indicator_ASVS-16S-D
 merged_16S_season_ASVs <- rda_16S_ASVs %>% 
   select(ASV, SeasonS) %>%
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # select 0.7 permanova scores only
-  full_join(indicsp_16S_season, by = "ASV")
+  full_join(indicsp_16S_season, by = "ASV") %>% 
+  full_join(S16_seasonal_results, by = "ASV")
 
 # Add taxonomy
 merged_16S_season_ASVs <- left_join(merged_16S_season_ASVs, taxonomy_table, by = "ASV") %>% 
-  select(ASV, Taxonomy, SeasonS, s.F, s.S, index, stat, p.value, Dataset, Grouping)
+  select(ASV, Taxonomy, SeasonS, s.F, s.S, index, stat, p.value, Dataset, Grouping, Coefficient)
 
 write_csv(merged_16S_season_ASVs, "outputs/indicators/Merged_indicator_ASVS-16S-Season.csv")
 
@@ -118,6 +120,7 @@ merged_18S_depth_ASVs <- rda_18S_ASVs %>%
   select(ASV, Depth20, Depth250) %>%
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # select 0.7 permanova scores only
   full_join(indicsp_18S_depth, by = "ASV")
+
 # Add taxonomy
 merged_18S_depth_ASVs <- left_join(merged_18S_depth_ASVs, taxonomy_table, by = "ASV") %>% 
   select(ASV, Taxonomy, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping)
@@ -125,7 +128,7 @@ merged_18S_depth_ASVs <- left_join(merged_18S_depth_ASVs, taxonomy_table, by = "
 write_csv(merged_18S_depth_ASVs, "outputs/indicators/Merged_indicator_ASVS-18S-Depth.csv")
 
 
-# Merging 16S Seasonal indicator ASVs from multiple methods
+# Merging 18S Seasonal indicator ASVs from multiple methods
 merged_18S_season_ASVs <- rda_18S_ASVs %>% 
   select(ASV, SeasonS) %>%
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # select 0.7 permanova scores only
@@ -184,10 +187,12 @@ taxonomy_table <- taxonomy_table %>% rownames_to_column(var = "ASV")
 merged_COI_depth_ASVs <- rda_COI_ASVs %>% 
   select(ASV, Depth20, Depth250) %>%
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # select 0.7 permanova scores only
-  full_join(indicsp_COI_depth, by = "ASV")
+  full_join(indicsp_COI_depth, by = "ASV") %>% 
+  full_join(COI_depth_results, by = "ASV")
+
 # Add taxonomy
 merged_COI_depth_ASVs <- left_join(merged_COI_depth_ASVs, taxonomy_table, by = "ASV") %>% 
-  select(ASV, Taxonomy, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping)
+  select(ASV, Taxonomy, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping, Coefficient)
 
 write_csv(merged_COI_depth_ASVs, "outputs/indicators/Merged_indicator_ASVS-COI-Depth.csv")
 
@@ -196,9 +201,11 @@ write_csv(merged_COI_depth_ASVs, "outputs/indicators/Merged_indicator_ASVS-COI-D
 merged_COI_season_ASVs <- rda_COI_ASVs %>% 
   select(ASV, SeasonS) %>%
   filter(if_any(where(is.numeric), ~ . > 0.7 | . < -0.7)) %>% # select 0.7 permanova scores only
-  full_join(indicsp_COI_season, by = "ASV")
+  full_join(indicsp_COI_season, by = "ASV") %>% 
+  full_join(COI_seasonal_results, by = "ASV")
+
 # Add taxonomy
 merged_COI_season_ASVs <- left_join(merged_COI_season_ASVs, taxonomy_table, by = "ASV") %>% 
-  select(ASV, Taxonomy, SeasonS, s.F, s.S, index, stat, p.value, Dataset, Grouping)
+  select(ASV, Taxonomy, SeasonS, s.F, s.S, index, stat, p.value, Dataset, Grouping, Coefficient)
 
 write_csv(merged_COI_season_ASVs, "outputs/indicators/Merged_indicator_ASVS-COI-Season.csv")

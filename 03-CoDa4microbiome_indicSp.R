@@ -4,10 +4,10 @@ library(coda4microbiome)
 library(tidyverse)
 
 load("input_objects.RData")
-#load("results.RData")
+load("results.RData")
 
-# These indicator psecies analyses are to be done only on 1 size-fraction datasets because
-# RDAs showed fundametal impact on the data. 
+# These indicator species analyses are to be done only on 1 size-fraction datasets because
+# RDAs showed fundamental impact on the data. 
 
 # Only investigate sample attributes showing a significant association to community organization 
 # from rd-RDA anova analysis
@@ -53,61 +53,107 @@ S16_df <- column_to_rownames(S16_df, var = "sampleid")
 # Dashed verticals show highest AUC score and cutoff selection for dimensionality reduction
 # This cutoff value is decided based on the lambda argument (default is 1 standard dev)
 
-# 16S
-#S16_coda_glmnet_seasonal<-coda_glmnet(x=S16_df,y=S16_y_season, nfolds = 3)
-#save.image("results.RData")
-S16_coda_glmnet_depth<-coda_glmnet(x=S16_df,y=S16_y_depth, nfolds = 3)
-save.image("results.RData")
-
-
+# 16S Seasonal Model
+S16_coda_glmnet_seasonal<-coda_glmnet(x=S16_df,y=S16_y_season, nfolds = 3)
 
 ####
 # Model evaluation
 ###
+# Extract data from the S16_coda_glmnet_seasonal object
+asv_num <- S16_coda_glmnet_seasonal$taxa.num
+asv_name <- S16_coda_glmnet_seasonal$taxa.name
+coefficients <- S16_coda_glmnet_seasonal$`log-contrast coefficients`
 
-# taxa kept for model
-S16_coda_glmnet_seasonal$taxa.num
-# their names
-S16_coda_glmnet_seasonal$taxa.name
-# Their log contrast coefficients
-(coef <- S16_coda_glmnet_seasonal$`log-contrast coefficients`)
-# The sum of which is = 0, because this model is built as a log-contrast
-# log-contrast preserve the (subcompositional) invariance principle
-
-# Extracting and ordering the taxa positively associated with the prediction
-positives<-which(coef>=0)
-op<-order(coef[positives], decreasing = TRUE)
-S16_coda_glmnet_seasonal$taxa.name[positives[op]]
-
-# The negatives
-negatives<-which(coef<0)
-on<-order(abs(coef[coef<0]), decreasing = TRUE)
-S16_coda_glmnet_seasonal$taxa.name[negatives[on]]
-
-# Same thing Vizualized on a plot
-S16_coda_glmnet_seasonal$`signature plot`
-
-# Total signature per sample (prediction)
-head(S16_coda_glmnet_seasonal$`predictions`)
-
-# Classification accuracy scores
-S16_coda_glmnet_seasonal$`apparent AUC`
-S16_coda_glmnet_seasonal$`mean cv-AUC`
-S16_coda_glmnet_seasonal$`sd cv-AUC`
-
-# Distributions of all samples signatures (predictions)
-S16_coda_glmnet_seasonal$`predictions plot`
+# Combine to a table
+S16_seasonal_results <- data.frame(
+  ASV_num = asv_num,
+  ASV = asv_name,
+  Coefficient = coefficients
+) %>%
+  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
 
 
+(signature_plot <- ggplot(S16_seasonal_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
+    labs(x = "Indicator ASV", 
+         y = "Log-Contrast Coefficient") +
+    scale_y_continuous(breaks = seq(-0.2, 0.6, by = 0.1)) +  # Define the x-axis breaks
+    scale_fill_manual(
+      values = c("FALSE" = "#440154FF", "TRUE" = "#21908CFF"),  # Assign colors
+      labels = c("Fall", "Spring"),  # Legend labels
+      name = "Season") +
+    theme_minimal() +  # Clean theme
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 14)) +
+    coord_flip()
+)
+
+# Save
+ggsave(
+  filename = "outputs/indicators/S16-coda-seasonal-sp.png",
+  plot = signature_plot, width = 8, height = 8, dpi = 300
+)
+
+(plot <- S16_coda_glmnet_seasonal$`predictions plot`)
 
 
-# PERMUTATIONAL TEST OF SIGNIFICANCE
-# Performs permutational cross-validation tests to evaluate the model ito the null (y permuted)
-#S16_coda_PERM_glmnet_seasonal<-coda_glmnet_null(x=S16_df, y=S16_y_season, niter=10) # for final evaluation, increase niter!
 
-# 
-#summary(S16_coda_PERM_glmnet_seasonal$"accuracy")
-#S16_coda_PERM_glmnet_seasonal$"confidence interval"
+# 16S Depth Model
+S16_coda_glmnet_depth<-coda_glmnet(x=S16_df,y=S16_y_depth, nfolds = 3)
+
+####
+# Model evaluation
+###
+# Extract data from the S16_coda_glmnet_seasonal object
+asv_num <- S16_coda_glmnet_depth$taxa.num
+asv_name <- S16_coda_glmnet_depth$taxa.name
+coefficients <- S16_coda_glmnet_depth$`log-contrast coefficients`
+
+# Combine to a table
+S16_depth_results <- data.frame(
+  ASV_num = asv_num,
+  ASV = asv_name,
+  Coefficient = coefficients
+) %>%
+  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
+
+
+(signature_plot <- ggplot(S16_depth_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
+    labs(x = "Indicator ASV", 
+         y = "Log-Contrast Coefficient") +
+    scale_y_continuous(limits = c(-1, 0.5),  # Set the range
+                       breaks = seq(-1, 0.5, by = 0.50)) +  # Define the x-axis breaks
+    scale_fill_manual(
+      values = c("FALSE" = "#A6CEE3", "TRUE" = "#08306B"),  # Assign colors
+      labels = c("Photic", "Aphotic"),  # Legend labels
+      name = "Sampling Depth") +
+    theme_minimal() +  # Clean theme
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 14)) +
+    coord_flip()
+)
+
+# Save
+ggsave(
+  filename = "outputs/indicators/S16-coda-depth-sp.png",
+  plot = signature_plot, width = 8, height = 4, dpi = 300
+)
+
+(plot <- S16_coda_glmnet_seasonal$`predictions plot`)
+
+
+
+
+
 
 
 
@@ -137,66 +183,57 @@ S18_df <- column_to_rownames(S18_df, var = "sampleid")
 #####
 # Cross-sectional (binary) glm penalized net
 #####
-# Running the model
-# Function recognizes the binary outcome so, implements a penalized logistic regression
-# First plot generated monitors AUC drop off as feature space is reduced iteratively
-# Dashed verticals show highest AUC score and cutoff selection for dimensionality reduction
-# This cutoff value is decided based on the lambda argument (default is 1 standard dev)
 
-# 18S
+# 18S Seasonal Model
 S18_coda_glmnet_seasonal<-coda_glmnet(x=S18_df,y=S18_y_season, nfolds = 3)
-save.image("results.RData")
-S18_coda_glmnet_depth<-coda_glmnet(x=S18_df,y=S18_y_depth, nfolds = 3)
-save.image("results.RData")
-
 
 ####
 # Model evaluation
 ###
+# Extract data from the S18_coda_glmnet_seasonal object
+asv_num <- S18_coda_glmnet_seasonal$taxa.num
+asv_name <- S18_coda_glmnet_seasonal$taxa.name
+coefficients <- S18_coda_glmnet_seasonal$`log-contrast coefficients`
 
-# taxa kept for model
-S18_coda_glmnet_seasonal$taxa.num
-# their names
-S18_coda_glmnet_seasonal$taxa.name
-# Their log contrast coefficients
-(coef <- S18_coda_glmnet_seasonal$`log-contrast coefficients`)
-# The sum of which is = 0, because this model is built as a log-contrast
-# log-contrast preserve the (subcompositional) invariance principle
-
-# Extracting and ordering the taxa positively associated with the prediction
-positives<-which(coef>=0)
-op<-order(coef[positives], decreasing = TRUE)
-S18_coda_glmnet_seasonal$taxa.name[positives[op]]
-
-# The negatives
-negatives<-which(coef<0)
-on<-order(abs(coef[coef<0]), decreasing = TRUE)
-S18_coda_glmnet_seasonal$taxa.name[negatives[on]]
-
-# Same thing Vizualized on a plot
-S18_coda_glmnet_seasonal$`signature plot`
-
-# Total signature per sample (prediction)
-head(S18_coda_glmnet_seasonal$`predictions`)
-
-# Classification accuracy scores
-S18_coda_glmnet_seasonal$`apparent AUC`
-S18_coda_glmnet_seasonal$`mean cv-AUC`
-S18_coda_glmnet_seasonal$`sd cv-AUC`
-
-# Distributions of all samples signatures (predictions)
-S18_coda_glmnet_seasonal$`predictions plot`
+# Combine to a table
+S18_seasonal_results <- data.frame(
+  ASV_num = asv_num,
+  ASV = asv_name,
+  Coefficient = coefficients
+) %>%
+  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
 
 
+(signature_plot <- ggplot(S18_seasonal_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
+    labs(x = "Indicator ASV", 
+         y = "Log-Contrast Coefficient") +
+    scale_y_continuous(breaks = seq(-0.2, 0.6, by = 0.1)) +  # Define the x-axis breaks
+    scale_fill_manual(
+      values = c("FALSE" = "#440154FF", "TRUE" = "#21908CFF"),  # Assign colors
+      labels = c("Fall", "Spring"),  # Legend labels
+      name = "Season") +
+    theme_minimal() +  # Clean theme
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 14)) +
+    coord_flip()
+)
+
+# Save
+ggsave(
+  filename = "outputs/indicators/S18-coda-seasonal-sp.png",
+  plot = signature_plot, width = 8, height = 6, dpi = 300
+)
 
 
-# PERMUTATIONAL TEST OF SIGNIFICANCE
-# Performs permutational cross-validation tests to evaluate the model ito the null (y permuted)
-#S18_coda_PERM_glmnet_seasonal<-coda_glmnet_null(x=S18_df, y=S18_y_season, niter=10) # for final evaluation, increase niter!
+# 18S Depth Model
+S18_coda_glmnet_depth<-coda_glmnet(x=S18_df,y=S18_y_depth, nfolds = 3)
 
-# 
-#summary(S18_coda_PERM_glmnet_seasonal$"accuracy")
-#S18_coda_PERM_glmnet_seasonal$"confidence interval"
+# NO RESULTS HERE EITHER
 
 
 
@@ -222,70 +259,94 @@ COI_y_depth <- ifelse(metadata[,"Depth"] %in% c(1, 20), "photic", "aphotic") %>%
 COI_df <- column_to_rownames(COI_df, var = "sampleid")
 
 
-
-#####
-# Cross-sectional (binary) glm penalized net
-#####
-# Running the model
-# Function recognizes the binary outcome so, implements a penalized logistic regression
-# First plot generated monitors AUC drop off as feature space is reduced iteratively
-# Dashed verticals show highest AUC score and cutoff selection for dimensionality reduction
-# This cutoff value is decided based on the lambda argument (default is 1 standard dev)
-
-# COI
+# COI Seasonal Model
 COI_coda_glmnet_seasonal<-coda_glmnet(x=COI_df,y=COI_y_season, nfolds = 3)
-save.image("results.RData")
-COI_coda_glmnet_depth<-coda_glmnet(x=COI_df,y=COI_y_depth, nfolds = 3)
-save.image("results.RData")
-
 
 ####
 # Model evaluation
 ###
+# Extract data from the COI_coda_glmnet_seasonal object
+asv_num <- COI_coda_glmnet_seasonal$taxa.num
+asv_name <- COI_coda_glmnet_seasonal$taxa.name
+coefficients <- COI_coda_glmnet_seasonal$`log-contrast coefficients`
 
-# taxa kept for model
-COI_coda_glmnet_seasonal$taxa.num
-# their names
-COI_coda_glmnet_seasonal$taxa.name
-# Their log contrast coefficients
-(coef <- COI_coda_glmnet_seasonal$`log-contrast coefficients`)
-# The sum of which is = 0, because this model is built as a log-contrast
-# log-contrast preserve the (subcompositional) invariance principle
-
-# Extracting and ordering the taxa positively associated with the prediction
-positives<-which(coef>=0)
-op<-order(coef[positives], decreasing = TRUE)
-COI_coda_glmnet_seasonal$taxa.name[positives[op]]
-
-# The negatives
-negatives<-which(coef<0)
-on<-order(abs(coef[coef<0]), decreasing = TRUE)
-COI_coda_glmnet_seasonal$taxa.name[negatives[on]]
-
-# Same thing Vizualized on a plot
-COI_coda_glmnet_seasonal$`signature plot`
-
-# Total signature per sample (prediction)
-head(COI_coda_glmnet_seasonal$`predictions`)
-
-# Classification accuracy scores
-COI_coda_glmnet_seasonal$`apparent AUC`
-COI_coda_glmnet_seasonal$`mean cv-AUC`
-COI_coda_glmnet_seasonal$`sd cv-AUC`
-
-# Distributions of all samples signatures (predictions)
-COI_coda_glmnet_seasonal$`predictions plot`
+# Combine to a table
+COI_seasonal_results <- data.frame(
+  ASV_num = asv_num,
+  ASV = asv_name,
+  Coefficient = coefficients
+) %>%
+  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
 
 
+(signature_plot <- ggplot(COI_seasonal_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
+    labs(x = "Indicator ASV", 
+         y = "Log-Contrast Coefficient") +
+    scale_y_continuous(breaks = seq(-0.4, 0.6, by = 0.1)) +  # Define the x-axis breaks
+    scale_fill_manual(
+      values = c("FALSE" = "#440154FF", "TRUE" = "#21908CFF"),  # Assign colors
+      labels = c("Fall", "Spring"),  # Legend labels
+      name = "Season") +
+    theme_minimal() +  # Clean theme
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 14)) +
+    coord_flip()
+)
+
+# Save
+ggsave(
+  filename = "outputs/indicators/COI-coda-seasonal-sp.png",
+  plot = signature_plot, width = 8, height = 6, dpi = 300
+)
 
 
-# PERMUTATIONAL TEST OF SIGNIFICANCE
-# Performs permutational cross-validation tests to evaluate the model ito the null (y permuted)
-#COI_coda_glmnet_seasonal<-coda_glmnet_null(x=COI_df, y=COI_y_season, niter=10) # for final evaluation, increase niter!
+# COI Depth model
+COI_coda_glmnet_depth<-coda_glmnet(x=COI_df,y=COI_y_depth, nfolds = 3)
 
-# 
-#summary(COI_coda_glmnet_seasonal$"accuracy")
-#COI_coda_glmnet_seasonal$"confidence interval"
+####
+# Model evaluation
+###
+# Extract data from the S16_coda_glmnet_seasonal object
+asv_num <- COI_coda_glmnet_depth$taxa.num
+asv_name <- COI_coda_glmnet_depth$taxa.name
+coefficients <- COI_coda_glmnet_depth$`log-contrast coefficients`
+
+# Combine to a table
+COI_depth_results <- data.frame(
+  ASV_num = asv_num,
+  ASV = asv_name,
+  Coefficient = coefficients
+) %>%
+  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
 
 
-save.image("results.RData")
+(signature_plot <- ggplot(COI_depth_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
+    labs(x = "Indicator ASV", 
+         y = "Log-Contrast Coefficient") +
+    scale_y_continuous(limits = c(-0.5, 0.25),  # Set the range
+                       breaks = seq(-0.5, 0.25, by = 0.25)) +  # Define the x-axis breaks
+    scale_fill_manual(
+      values = c("FALSE" = "#A6CEE3", "TRUE" = "#08306B"),  # Assign colors
+      labels = c("Photic", "Aphotic"),  # Legend labels
+      name = "Sampling Depth") +
+    theme_minimal() +  # Clean theme
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.title = element_text(size = 14, face = "bold"),
+      legend.text = element_text(size = 14)) +
+    coord_flip()
+)
+
+# Save
+ggsave(
+  filename = "outputs/indicators/COI-coda-depth-sp.png",
+  plot = signature_plot, width = 8, height = 8, dpi = 300
+)

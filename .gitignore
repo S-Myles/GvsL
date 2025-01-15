@@ -6,4 +6,4 @@
 .Ruserdata
 coda4microbiome
 outputs
-input_objects.RData
+coda4results.RData
