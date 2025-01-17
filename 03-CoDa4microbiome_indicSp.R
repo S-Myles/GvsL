@@ -3,8 +3,7 @@ library(phyloseq)
 library(coda4microbiome)
 library(tidyverse)
 
-load("input_objects.RData")
-load("results.RData")
+load("coda4results.RData")
 
 # These indicator species analyses are to be done only on 1 size-fraction datasets because
 # RDAs showed fundamental impact on the data. 
@@ -68,12 +67,52 @@ coefficients <- S16_coda_glmnet_seasonal$`log-contrast coefficients`
 S16_seasonal_results <- data.frame(
   ASV_num = asv_num,
   ASV = asv_name,
-  Coefficient = coefficients
-) %>%
-  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
+  Coefficient = coefficients)
 
 
-(signature_plot <- ggplot(S16_seasonal_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+####
+# Get Taxonomies
+####
+# Extract taxonomy table from phyloseq object
+taxonomy_table <- as.data.frame(tax_table(S16_filt_data))
+
+# Create taxonomy column based on the best available rank
+taxonomy_table$Taxonomy <- if_else(
+  !is.na(taxonomy_table$Species) & taxonomy_table$Species != "",
+  taxonomy_table$Species,  # Use Species if available
+  if_else(
+    !is.na(taxonomy_table$Genus) & taxonomy_table$Genus != "",
+    paste(taxonomy_table$Genus, "sp.", sep = " "),  # Use Genus with " sp."
+    if_else(
+      !is.na(taxonomy_table$Family) & taxonomy_table$Family != "",
+      paste("Family_", taxonomy_table$Family, sep = ""),  # Use Family with "Family_" prefix
+      if_else(
+        !is.na(taxonomy_table$Order) & taxonomy_table$Order != "",
+        paste("Order_", taxonomy_table$Order, sep = ""),  # Use Order with "Order_" prefix
+        if_else(
+          !is.na(taxonomy_table$Class) & taxonomy_table$Class != "",
+          paste("Class_", taxonomy_table$Class, sep = ""),  # Use Class with "Class_" prefix
+          NA_character_  # Default to NA if no rank is available
+        )
+      )
+    )
+  )
+)
+
+# Make ASV IDs the rownames for joining
+taxonomy_table <- taxonomy_table %>% rownames_to_column(var = "ASV")
+
+# Add taxonomy
+S16_seasonal_results <- left_join(S16_seasonal_results, taxonomy_table, by = "ASV") %>% 
+  select(ASV, Taxonomy, Coefficient)
+# Ensure unique taxonomy names
+S16_seasonal_results$Taxonomy <- make.unique(S16_seasonal_results$Taxonomy)
+
+S16_seasonal_results <- S16_seasonal_results %>%
+  mutate(Taxonomy = factor(Taxonomy, levels = Taxonomy[order(Coefficient, decreasing = TRUE)]))
+
+
+(signature_plot <- ggplot(S16_seasonal_results, aes(x = Taxonomy, y = Coefficient, fill = Coefficient > 0)) +
     geom_bar(stat = "identity", alpha = 0.8) +
     geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
     labs(x = "Indicator ASV", 
@@ -117,12 +156,23 @@ coefficients <- S16_coda_glmnet_depth$`log-contrast coefficients`
 S16_depth_results <- data.frame(
   ASV_num = asv_num,
   ASV = asv_name,
-  Coefficient = coefficients
-) %>%
-  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
+  Coefficient = coefficients)
 
 
-(signature_plot <- ggplot(S16_depth_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+####
+# Add taxonomy
+####
+S16_depth_results <- left_join(S16_depth_results, taxonomy_table, by = "ASV") %>% 
+  select(ASV, Taxonomy, Coefficient)
+# Ensure unique taxonomy names
+S16_depth_results$Taxonomy <- make.unique(S16_depth_results$Taxonomy)
+
+S16_depth_results <- S16_depth_results %>%
+  mutate(Taxonomy = factor(Taxonomy, levels = Taxonomy[order(Coefficient, decreasing = TRUE)]))
+
+
+
+(signature_plot <- ggplot(S16_depth_results, aes(x = Taxonomy, y = Coefficient, fill = Coefficient > 0)) +
     geom_bar(stat = "identity", alpha = 0.8) +
     geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
     labs(x = "Indicator ASV", 
@@ -274,12 +324,51 @@ coefficients <- COI_coda_glmnet_seasonal$`log-contrast coefficients`
 COI_seasonal_results <- data.frame(
   ASV_num = asv_num,
   ASV = asv_name,
-  Coefficient = coefficients
-) %>%
-  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
+  Coefficient = coefficients)
+
+####
+# Get Taxonomies
+####
+# Extract taxonomy table from phyloseq object
+taxonomy_table <- as.data.frame(tax_table(COI_filt_data))
+
+# Create taxonomy column based on the best available rank
+taxonomy_table$Taxonomy <- if_else(
+  !is.na(taxonomy_table$Species) & taxonomy_table$Species != "",
+  taxonomy_table$Species,  # Use Species if available
+  if_else(
+    !is.na(taxonomy_table$Genus) & taxonomy_table$Genus != "",
+    paste(taxonomy_table$Genus, "sp.", sep = " "),  # Use Genus with " sp."
+    if_else(
+      !is.na(taxonomy_table$Family) & taxonomy_table$Family != "",
+      paste("Family_", taxonomy_table$Family, sep = ""),  # Use Family with "Family_" prefix
+      if_else(
+        !is.na(taxonomy_table$Order) & taxonomy_table$Order != "",
+        paste("Order_", taxonomy_table$Order, sep = ""),  # Use Order with "Order_" prefix
+        if_else(
+          !is.na(taxonomy_table$Class) & taxonomy_table$Class != "",
+          paste("Class_", taxonomy_table$Class, sep = ""),  # Use Class with "Class_" prefix
+          NA_character_  # Default to NA if no rank is available
+        )
+      )
+    )
+  )
+)
+
+# Make ASV IDs the rownames for joining
+taxonomy_table <- taxonomy_table %>% rownames_to_column(var = "ASV")
+
+# Add taxonomy
+COI_seasonal_results <- left_join(COI_seasonal_results, taxonomy_table, by = "ASV") %>% 
+  select(ASV, Taxonomy, Coefficient)
+# Ensure unique taxonomy names
+COI_seasonal_results$Taxonomy <- make.unique(COI_seasonal_results$Taxonomy)
+
+COI_seasonal_results <- COI_seasonal_results %>%
+  mutate(Taxonomy = factor(Taxonomy, levels = Taxonomy[order(Coefficient, decreasing = TRUE)]))
 
 
-(signature_plot <- ggplot(COI_seasonal_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+(signature_plot <- ggplot(COI_seasonal_results, aes(x = Taxonomy, y = Coefficient, fill = Coefficient > 0)) +
     geom_bar(stat = "identity", alpha = 0.8) +
     geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
     labs(x = "Indicator ASV", 
@@ -320,12 +409,22 @@ coefficients <- COI_coda_glmnet_depth$`log-contrast coefficients`
 COI_depth_results <- data.frame(
   ASV_num = asv_num,
   ASV = asv_name,
-  Coefficient = coefficients
-) %>%
-  mutate(ASV = factor(ASV, levels = ASV[order(Coefficient, decreasing = TRUE)]))
+  Coefficient = coefficients)
+
+####
+# Add taxonomy
+####
+COI_depth_results <- left_join(COI_depth_results, taxonomy_table, by = "ASV") %>% 
+  select(ASV, Taxonomy, Coefficient)
+# Ensure unique taxonomy names
+COI_depth_results$Taxonomy <- make.unique(COI_depth_results$Taxonomy)
+
+COI_depth_results <- COI_depth_results %>%
+  mutate(Taxonomy = factor(Taxonomy, levels = Taxonomy[order(Coefficient, decreasing = TRUE)]))
 
 
-(signature_plot <- ggplot(COI_depth_results, aes(x = ASV, y = Coefficient, fill = Coefficient > 0)) +
+
+(signature_plot <- ggplot(COI_depth_results, aes(x = Taxonomy, y = Coefficient, fill = Coefficient > 0)) +
     geom_bar(stat = "identity", alpha = 0.8) +
     geom_hline(yintercept = 0, color = "black") +  # Add reference line at y=0
     labs(x = "Indicator ASV", 

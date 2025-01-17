@@ -169,20 +169,20 @@ track_per_sample_step(COI_physeq_data, "Loaded", COI_summary)
 #############################################################################
 # Taxonomic Cleanup
 #####################
-S12_taxfilt_data <- subset_taxa(S12_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis", "Blumeria", "Squalius"))) %>% 
+S12_taxfilt_data <- subset_taxa(S12_physeq_Ldata, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis", "Blumeria", "Squalius"))) %>% 
   subset_taxa(!(Family == "NA")) %>% 
   subset_taxa(!is.na(Class))
 
-S16_taxfilt_data <- subset_taxa(S16_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
+S16_taxfilt_data <- subset_taxa(S16_physeq_Sdata, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
   subset_taxa(!(Phylum == "Eukaryota")) %>% 
   subset_taxa(!(Family %in% c("Mitochondria", "Chloroplast"))) %>% 
   subset_taxa(!is.na(Class))
 
-S18_taxfilt_data <- subset_taxa(S18_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
+S18_taxfilt_data <- subset_taxa(S18_physeq_Ldata, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
   subset_taxa(!(Phylum == "Unassigned")) %>% 
   subset_taxa(!is.na(Class))
 
-COI_taxfilt_data <- subset_taxa(COI_physeq_data, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
+COI_taxfilt_data <- subset_taxa(COI_physeq_Ldata, !(Genus %in% c("Homo", "Bos", "Sus", "Anas", "Canis"))) %>% 
   subset_taxa((Superkingdom == "Eukaryota")) %>% 
   subset_taxa(!(Phylum == "IncompleteTaxonomy")) %>% 
   subset_taxa(!(Class %in% c("NA")))
