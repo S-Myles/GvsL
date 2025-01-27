@@ -163,5 +163,5 @@ indicsp_COI_depth <- extract_multipatt_results(ind_depth, "COI", "Depth")
 
 
 # Optional Cleanup 
-rm(ind_depth, ind_season, ind_station, extract_multipatt_results)
+rm(ind_depth, ind_season, extract_multipatt_results)
 rm(list = ls(pattern = "^(COI_|S12_|S16_|S18_)(df|y_depth|y_season|y_station)"))

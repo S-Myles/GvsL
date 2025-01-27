@@ -169,8 +169,14 @@ ggsave(
 )
 
 
-# Extract RDA eigenvalues and calculate proportions of total variance per axis
-variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
+# Proportions for constrained (RDA) axes
+variance_rda <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
+# Proportions for unconstrained (PCA) axes
+variance_pca <- rda_result$CA$eig / sum(rda_result$CA$eig) * 100
+
+# Combine RDA and PCA proportions
+variance_proportions <- c(variance_rda, variance_pca)
+
 # Create axis labels
 axis_labels <- c(
   paste0("RDA", seq_along(rda_result$CCA$eig)), 
@@ -447,9 +453,14 @@ ggsave(
 )
 
 
+# Proportions for constrained (RDA) axes
+variance_rda <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
+# Proportions for unconstrained (PCA) axes
+variance_pca <- rda_result$CA$eig / sum(rda_result$CA$eig) * 100
 
-# Extract RDA eigenvalues and calculate proportions of total variance per axis
-variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
+# Combine RDA and PCA proportions
+variance_proportions <- c(variance_rda, variance_pca)
+
 # Create axis labels
 axis_labels <- c(
   paste0("RDA", seq_along(rda_result$CCA$eig)), 
@@ -720,8 +731,14 @@ ggsave(
 )
 
 
-# Extract RDA eigenvalues and calculate proportions of total variance per axis
-variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
+# Proportions for constrained (RDA) axes
+variance_rda <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
+# Proportions for unconstrained (PCA) axes
+variance_pca <- rda_result$CA$eig / sum(rda_result$CA$eig) * 100
+
+# Combine RDA and PCA proportions
+variance_proportions <- c(variance_rda, variance_pca)
+
 # Create axis labels
 axis_labels <- c(
   paste0("RDA", seq_along(rda_result$CCA$eig)), 
@@ -991,8 +1008,14 @@ ggsave(
 )
 
 
-# Extract RDA eigenvalues and calculate proportions of total variance per axis
-variance_proportions <- c(rda_result$CCA$eig, rda_result$CA$eig) / sum(c(rda_result$CCA$eig, rda_result$CA$eig)) * 100
+# Proportions for constrained (RDA) axes
+variance_rda <- rda_result$CCA$eig / sum(rda_result$CCA$eig) * 100
+# Proportions for unconstrained (PCA) axes
+variance_pca <- rda_result$CA$eig / sum(rda_result$CA$eig) * 100
+
+# Combine RDA and PCA proportions
+variance_proportions <- c(variance_rda, variance_pca)
+
 # Create axis labels
 axis_labels <- c(
   paste0("RDA", seq_along(rda_result$CCA$eig)), 

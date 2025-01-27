@@ -181,7 +181,7 @@ S16_depth_results <- S16_depth_results %>%
                        breaks = seq(-1, 0.5, by = 0.50)) +  # Define the x-axis breaks
     scale_fill_manual(
       values = c("FALSE" = "#A6CEE3", "TRUE" = "#08306B"),  # Assign colors
-      labels = c("Photic", "Aphotic"),  # Legend labels
+      labels = c("Pelagic", "Mesopelagic"),  # Legend labels
       name = "Sampling Depth") +
     theme_minimal() +  # Clean theme
     theme(
@@ -433,7 +433,7 @@ COI_depth_results <- COI_depth_results %>%
                        breaks = seq(-0.5, 0.25, by = 0.25)) +  # Define the x-axis breaks
     scale_fill_manual(
       values = c("FALSE" = "#A6CEE3", "TRUE" = "#08306B"),  # Assign colors
-      labels = c("Photic", "Aphotic"),  # Legend labels
+      labels = c("Pelagic", "Mesopelagic"),  # Legend labels
       name = "Sampling Depth") +
     theme_minimal() +  # Clean theme
     theme(
@@ -449,3 +449,6 @@ ggsave(
   filename = "outputs/indicators/COI-coda-depth-sp.png",
   plot = signature_plot, width = 8, height = 8, dpi = 300
 )
+
+
+#save.image("coda4results.RData")

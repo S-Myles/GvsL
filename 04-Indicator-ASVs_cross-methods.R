@@ -192,7 +192,7 @@ merged_COI_depth_ASVs <- rda_COI_ASVs %>%
 
 # Add taxonomy
 merged_COI_depth_ASVs <- left_join(merged_COI_depth_ASVs, taxonomy_table, by = "ASV") %>% 
-  select(ASV, Taxonomy, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping, Coefficient)
+  select(ASV, Taxonomy.y, Depth20, Depth250, s.aphotic, s.photic, index, stat, p.value, Dataset, Grouping, Coefficient)
 
 write_csv(merged_COI_depth_ASVs, "outputs/indicators/Merged_indicator_ASVS-COI-Depth.csv")
 
@@ -206,6 +206,6 @@ merged_COI_season_ASVs <- rda_COI_ASVs %>%
 
 # Add taxonomy
 merged_COI_season_ASVs <- left_join(merged_COI_season_ASVs, taxonomy_table, by = "ASV") %>% 
-  select(ASV, Taxonomy, SeasonS, s.F, s.S, index, stat, p.value, Dataset, Grouping, Coefficient)
+  select(ASV, Taxonomy.y, SeasonS, s.F, s.S, index, stat, p.value, Dataset, Grouping, Coefficient)
 
 write_csv(merged_COI_season_ASVs, "outputs/indicators/Merged_indicator_ASVS-COI-Season.csv")

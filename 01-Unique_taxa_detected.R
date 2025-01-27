@@ -91,6 +91,11 @@ shared_taxa_results <- bind_rows(
   lapply(taxonomy_levels, function(level) find_shared_taxa(all_unique_tax, level))
 )
 
+for_save <- shared_taxa_results %>%
+  unnest(Source_Lists) %>% 
+  filter(complete.cases(.))
+
+write_csv(for_save, file = "outputs/taxa_detected_multiple_datasets.csv")
 
 
 # Step 3: Prepare shared taxa counts for barplot
@@ -139,8 +144,8 @@ final_taxa_counts <- right_join(adjusted_taxa_counts, shared_taxa_counts, by = "
   labs(x = "Taxonomy Level", y = "Unique Taxa Count", fill = "Dataset of origin") +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12, face = "bold"), 
-    axis.text.y = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14, face = "bold"), 
+    axis.text.y = element_text(size = 14, face = "bold"),
     axis.title = element_text(size = 16, face = "bold"),
     legend.title = element_text(size = 16, face = "bold"),
     legend.text = element_text(size = 12, face = "bold")
@@ -148,5 +153,5 @@ final_taxa_counts <- right_join(adjusted_taxa_counts, shared_taxa_counts, by = "
 
 ggsave(
   filename = "outputs/tax_barplots/Unique_taxa_counts.png",
-  plot = plot, width = 10, height = 4, dpi = 300
+  plot = plot, width = 12, height = 4, dpi = 300
 )

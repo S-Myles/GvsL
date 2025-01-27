@@ -57,7 +57,7 @@ accum_data <- rbind(
 
 # Save
 ggsave(
-  filename = "outputs/Fig1/asv-accum_tax-filt_ASVs.png",
+  filename = "outputs/asv_accum/asv-accum_tax-filt_ASVs.png",
   plot = plot, width = 5, height = 4, dpi = 300
 )
 
@@ -72,8 +72,8 @@ ggsave(
 
 
 # Spliting data according to site
-gully <- subset_samples(S12_taxfilt_data, Station=="GULD_04")
-LL7 <- subset_samples(S12_taxfilt_data, Station=="LL_07")
+gully <- subset_samples(COI_taxfilt_data, Station=="GULD_04")
+LL7 <- subset_samples(COI_taxfilt_data, Station=="LL_07")
 
 # 1 curve per site
 gully_accum_curve <- otu_table(gully) %>% 
@@ -108,7 +108,7 @@ site_accum_data <- rbind(
 
 # Save
 ggsave(
-  filename = "outputs/asv_accum/S12-SITES-accum_tax-filt_ASVs.png",
+  filename = "outputs/asv_accum/COI-SITES-accum_tax-filt_ASVs.png",
   plot = plot, width = 5, height = 4, dpi = 300
 )
 
@@ -116,8 +116,8 @@ ggsave(
 
 
 # Spliting data according to seasons
-spring <- subset_samples(S12_taxfilt_data, Season=="S")
-fall <- subset_samples(S12_taxfilt_data, Season=="F")
+spring <- subset_samples(COI_taxfilt_data, Season=="S")
+fall <- subset_samples(COI_taxfilt_data, Season=="F")
 
 # 1 curve per site
 spring_accum_curve <- otu_table(spring) %>% 
@@ -152,7 +152,7 @@ season_accum_data <- rbind(
 
 # Save
 ggsave(
-  filename = "outputs/asv_accum/S12-SEASOIN_accum_tax-filt_ASVs.png",
+  filename = "outputs/asv_accum/COI-SEASOIN_accum_tax-filt_ASVs.png",
   plot = plot, width = 5, height = 4, dpi = 300
 )
 
@@ -160,8 +160,8 @@ ggsave(
 
 
 # Spliting data according to site
-small <- subset_samples(S12_taxfilt_data, Size.Fraction=="S")
-large <- subset_samples(S12_taxfilt_data, Size.Fraction=="L")
+small <- subset_samples(COI_taxfilt_data, Size.Fraction=="S")
+large <- subset_samples(COI_taxfilt_data, Size.Fraction=="L")
 
 # 1 curve per site
 small_accum_curve <- otu_table(small) %>% 
@@ -196,7 +196,7 @@ site_accum_data <- rbind(
 
 # Save
 ggsave(
-  filename = "outputs/asv_accum/S12-SF-accum_tax-filt_ASVs.png",
+  filename = "outputs/asv_accum/COI-SF-accum_tax-filt_ASVs.png",
   plot = plot, width = 5, height = 4, dpi = 300
 )
 
