@@ -19,7 +19,7 @@ custom_labeller <- labeller(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-S12_physeq_agg <- S12_physeq_Ldata %>%
+S12_physeq_agg <- S12_taxfilt_data %>%
   #tax_glom(taxrank = "Species") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
@@ -37,13 +37,13 @@ ps_melted <- psmelt(S12_physeq_agg) %>%
     theme_minimal() +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
-      strip.text = element_text(size = 10),
-      legend.position = "none"
+      strip.text = element_text(size = 10)#,
+      #legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/tax_barplots/S12-sp_barplot.png",
+  filename = "outputs/tax_barplots/S12-sp_legend.png",
   plot = plot,
   width = 8, height = 6,
   dpi = 300
@@ -58,7 +58,7 @@ ggsave(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-S16_physeq_agg <- S16_physeq_Sdata %>%
+S16_physeq_agg <- S16_taxfilt_data %>%
   #tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
@@ -76,13 +76,13 @@ ps_melted <- psmelt(S16_physeq_agg) %>%
     theme_minimal() +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
-      strip.text = element_text(size = 10),
-      legend.position = "none"
+      strip.text = element_text(size = 10)#,
+      #legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/tax_barplots/S16-phylum_barplot.png",
+  filename = "outputs/tax_barplots/S16-phylum_legend.png",
   plot = plot,
   width = 8, height = 6,
   dpi = 300
@@ -96,7 +96,7 @@ ggsave(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-S18_physeq_agg <- S18_physeq_Ldata %>%
+S18_physeq_agg <- S18_taxfilt_data %>%
   #tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
@@ -114,13 +114,13 @@ ps_melted <- psmelt(S18_physeq_agg) %>%
     theme_minimal() +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
-      strip.text = element_text(size = 10),
-      legend.position = "none"
+      strip.text = element_text(size = 10)#,
+      #legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/tax_barplots/S18-phylum_barplot.png",
+  filename = "outputs/tax_barplots/S18-phylum_legend.png",
   plot = plot,
   width = 8, height = 6,
   dpi = 300
@@ -136,7 +136,7 @@ ggsave(
 # -------------- Taxa barplots
 ########
 # Aggregate taxa to the desired level and transform to relative abundances
-COI_physeq_agg <- COI_physeq_Ldata %>%
+COI_physeq_agg <- COI_taxfilt_data %>%
   #tax_glom(taxrank = "Phylum") %>%  # Aggregate at the Species level
   transform_sample_counts(function(x) x / sum(x))  # Convert to relative abundances
 
@@ -154,13 +154,13 @@ ps_melted <- psmelt(COI_physeq_agg) %>%
     theme_minimal() +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
-      strip.text = element_text(size = 10),
-      legend.position = "none"
+      strip.text = element_text(size = 10)#,
+      #legend.position = "none"
     ))
 
 # Save the plot
 ggsave(
-  filename = "outputs/tax_barplots/COI-phylum_barplot.png",
+  filename = "outputs/tax_barplots/COI-phylum_legend.png",
   plot = plot,
   width = 8, height = 6,
   dpi = 300
